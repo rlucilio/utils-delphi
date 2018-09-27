@@ -13,23 +13,28 @@ type
    private
       fconexao: TFDConnection;
       Fquery: TStringBuilder;
-      constructor Create(Conexao: TFDConnection);
+      constructor Create(Conexao: iModelConexao);
+      function getQuery: TStringBuilder;
+      procedure setQuery(const Value: TStringBuilder);
    public
-      class function New(Conexao: TFDConnection): iModelQuery;
-      function execQueryComRetorno(var dados:TDataSet): iModelQuery;
-      function execQuery:iModelQuery;
       destructor Destroy; override;
-      property Query: TStringBuilder read Fquery write Fquery;
+      class function New(Conexao: iModelConexao): iModelQuery;
+      function execQueryComRetorno(var dados: TDataSet): iModelQuery;
+      function execQuery: iModelQuery;
+      property Query: TStringBuilder read getQuery write setQuery;
    end;
 
 implementation
 
+uses
+   Model.Conexao;
+
 { TModelQuery }
 
-constructor TModelQuery.Create(Conexao: TFDConnection);
+constructor TModelQuery.Create(Conexao: iModelConexao);
 begin
    inherited Create;
-   fconexao := Conexao;
+   fconexao := TModelConexao(Conexao).Conexao;
    Fquery := TStringBuilder.Create;
 end;
 
@@ -43,17 +48,16 @@ function TModelQuery.execQuery: iModelQuery;
 var
    qry: TFDQuery;
 begin
-   result:= self;
+   result := self;
 
-   qry:= TFDQuery.Create(nil);
+   qry := TFDQuery.Create(nil);
    try
       try
-         qry.Connection:= fconexao;
-         qry.SQL:= Query.ToString;
+         qry.Connection := fconexao;
+         qry.SQL.Text := Query.ToString;
          qry.ExecSQL;
       except
          raise Exception.Create('Houve um erro ao executar a query de ação');
-
       end;
 
    finally
@@ -61,11 +65,11 @@ begin
    end;
 end;
 
-function TModelQuery.execQueryComRetorno(var dados:TDataSet): iModelQuery;
+function TModelQuery.execQueryComRetorno(var dados: TDataSet): iModelQuery;
 var
    qry: TFDQuery;
 begin
-   result:= self;
+   result := self;
    qry := TFDQuery.Create(nil);
    try
       qry.Connection := fconexao;
@@ -78,9 +82,19 @@ begin
    end;
 end;
 
-class function TModelQuery.New(Conexao: TFDConnection): iModelQuery;
+function TModelQuery.getQuery: TStringBuilder;
 begin
-   Result := Self.Create(Conexao);
+   result := Fquery;
+end;
+
+class function TModelQuery.New(Conexao: iModelConexao): iModelQuery;
+begin
+   result := self.Create(Conexao);
+end;
+
+procedure TModelQuery.setQuery(const Value: TStringBuilder);
+begin
+   Fquery := Value;
 end;
 
 end.

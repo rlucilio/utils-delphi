@@ -17,6 +17,7 @@ type
    end;
 
 implementation
+
 uses
    System.SysUtils;
 
@@ -30,7 +31,7 @@ begin
    try
       Script := TFDScript.Create(nil);
       try
-         Script.Connection:= Conexao;
+         Script.Connection := Conexao;
          Script.ExecuteScript(sql);
       except
          raise Exception.Create('Erro ao criar o banco de dados');

@@ -13,7 +13,6 @@ type
       property indice: integer read Findice write Findice;
    end;
 
-
 implementation
 
 { TEnumHelper }
@@ -21,8 +20,8 @@ implementation
 constructor TEnumHelper.Create(nome: string; indice: integer);
 begin
    inherited Create;
-   Fnome:= nome;
-   Findice:= indice;
+   Fnome := nome;
+   Findice := indice;
 end;
 
 end.

@@ -3,10 +3,10 @@ unit Model.Conexao.interfaces;
 interface
 
 uses
-  System.Classes;
+   System.Classes, Data.DB, System.SysUtils;
 
 type
-   iModelConexao= interface
+   iModelConexao = interface
       ['{BCF11EBC-8927-4132-9F3C-65AE7C60D5BC}']
       function criarBanco(script: TStrings): iModelConexao;
    end;
@@ -17,6 +17,11 @@ type
 
    iModelQuery = interface
       ['{5D00397F-E1E6-47B0-BC4F-337EA2E01602}']
+      function getQuery: TStringBuilder;
+      procedure setQuery(const Value: TStringBuilder);
+      function execQueryComRetorno(var dados: TDataSet): iModelQuery;
+      function execQuery: iModelQuery;
+      property Query: TStringBuilder read getQuery write setQuery;
    end;
 
 implementation

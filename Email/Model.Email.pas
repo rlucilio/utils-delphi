@@ -22,8 +22,7 @@ type
       destructor Destroy; override;
       function setServer(host, senha: string): iModelEmail;
       function validaEmail(Email: string): boolean;
-      function setEnvio(emailsDestinatarios: TArray<string>; assunto: string)
-        : iModelEmail;
+      function setEnvio(emailsDestinatarios: TArray<string>; assunto: string): iModelEmail;
       function setMensagem(mensagemASerEnviada: string): iModelEmail;
       function setAnexos(anexos: TArray<string>): iModelEmail;
       function enviar: iModelEmail;
@@ -50,13 +49,16 @@ end;
 function TModelEmail.setServer(host, senha: string): iModelEmail;
 begin
    result := self;
-   SSLIOHandlerSocket.SSLOptions.Method := sslvSSLv23;
-   SSLIOHandlerSocket.SSLOptions.Mode := sslmClient;
+   if host.Contains('gmail') then
+   begin
+      SSLIOHandlerSocket.SSLOptions.Method := sslvSSLv23;
+      SSLIOHandlerSocket.SSLOptions.Mode := sslmClient;
 
-   SMTP.IOHandler := SSLIOHandlerSocket;
-   SMTP.UseTLS := utUseImplicitTLS;
-   SMTP.AuthType := satDefault;
-   SMTP.Port := 465;
+      SMTP.IOHandler := SSLIOHandlerSocket;
+      SMTP.UseTLS := utUseImplicitTLS;
+      SMTP.AuthType := satDefault;
+   end;
+   SMTP.Port := 587;
    SMTP.host := host;
    SMTP.Username := emailRemetente;
    SMTP.Password := senha;
@@ -90,29 +92,29 @@ begin
 end;
 
 function TModelEmail.enviar: iModelEmail;
-
 begin
    result := self;
-  try
+
+   
+   try
 
       try
+
          SMTP.Connect;
          SMTP.Authenticate;
       except
-        abort;
+         abort;
       end;
 
       try
          SMTP.Send(Mensagem);
       except
-        abort;
+         abort;
       end;
 
-      SMTP.Send(Mensagem);
    finally
       SMTP.Disconnect();
    end;
-
 
 end;
 
@@ -130,8 +132,7 @@ begin
 
 end;
 
-function TModelEmail.setEnvio(emailsDestinatarios: TArray<string>;
-  assunto: string): iModelEmail;
+function TModelEmail.setEnvio(emailsDestinatarios: TArray<string>; assunto: string): iModelEmail;
 var
    Email: string;
 begin
@@ -151,8 +152,7 @@ begin
    Mensagem.Encoding := meMIME;
 end;
 
-class function TModelEmail.New(emailRemetente, nomeRemetente: string)
-  : iModelEmail;
+class function TModelEmail.New(emailRemetente, nomeRemetente: string): iModelEmail;
 begin
    result := self.Create(emailRemetente, nomeRemetente);
 end;

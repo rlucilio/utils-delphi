@@ -2,7 +2,9 @@ unit Model.Ini;
 
 interface
 
-uses Model.Ini.Interfaces, System.SysUtils, System.iniFiles, System.Rtti, System.Generics.Collections;
+uses Model.Ini.Interfaces, System.SysUtils, System.iniFiles, System.Rtti,
+   System.Generics.Collections,
+   Model.EnumHelper;
 
 type
    TModelIni = class(TInterfacedObject, iModelIni)
@@ -18,16 +20,15 @@ type
       function salva(obj: TObject): iModelIni;
       function carrega(obj: TObject): iModelIni;
       property arquivo: string read Farquivo;
-      property resultado: TDictionary<string,string> read Fresultado;
+      property resultado: TDictionary<string, string> read Fresultado;
    end;
 
 implementation
 
 uses
-  System.Variants;
+   System.Variants;
 
 { TModelIni }
-
 
 function TModelIni.carrega(obj: TObject): iModelIni;
 var
@@ -36,17 +37,17 @@ var
    tipo: TRttiType;
    valor, atributo: string;
 begin
-   result:= self;
+   result := self;
    resultado.Clear;
-   contexto:= TRttiContext.Create;
+   contexto := TRttiContext.Create;
    try
-      tipo:= contexto.GetType(obj.ClassInfo);
+      tipo := contexto.GetType(obj.ClassInfo);
 
       for propriedade in tipo.GetProperties do
       begin
-        atributo:= propriedade.Name;
-        valor:=  arquioIni.ReadString(obj.ClassName, propriedade.Name, '');
-        resultado.Add(atributo, valor);
+         atributo := propriedade.Name;
+         valor := arquioIni.ReadString(obj.ClassName, propriedade.Name, '');
+         resultado.Add(atributo, valor);
       end;
 
    finally
@@ -57,39 +58,68 @@ end;
 constructor TModelIni.Create;
 begin
    inherited Create;
-   Fresultado:= TDictionary<string,string>.Create;
-   Farquivo:= ExtractFilePath(ParamStr(0))+'\config.ini';
-   arquioIni:= TIniFile.Create(Farquivo);
+   Fresultado := TDictionary<string, string>.Create;
+   Farquivo := ExtractFilePath(ParamStr(0)) + '\config.ini';
+   arquioIni := TIniFile.Create(Farquivo);
 end;
 
 destructor TModelIni.Destroy;
 begin
-  FreeAndNil(arquioIni);
-  FreeAndNil(Fresultado);
-  inherited;
+   FreeAndNil(arquioIni);
+   FreeAndNil(Fresultado);
+   inherited;
 end;
 
 class function TModelIni.New: iModelIni;
 begin
-   Result:= Self.Create;
+   result := self.Create;
 
 end;
-
 
 function TModelIni.salva(obj: TObject): iModelIni;
 var
    propriedade: TRttiProperty;
+   atributos: TCustomAttribute;
    contexto: TRttiContext;
    tipo: TRttiType;
-   valor: variant;
+   lista: TList<String>;
+   item: string;
+   valor: string;
 begin
-   result:= self;
-   contexto:= TRttiContext.Create;
+   result := self;
+   contexto := TRttiContext.Create;
    try
-      tipo:= contexto.GetType(obj.ClassInfo);
+      tipo := contexto.GetType(obj.ClassInfo);
       for propriedade in tipo.GetProperties do
       begin
-        arquioIni.WriteString(obj.ClassName, propriedade.Name, VarToStr(propriedade.GetValue(obj).AsVariant));
+         if propriedade.GetValue(obj).IsInstanceOf(TList<String>) then
+         begin
+            valor := '';
+            propriedade.GetValue(obj).TryAsType < TList < String >> (lista);
+            for item in lista do
+            begin
+               valor := valor + item + '|';
+            end;
+            arquioIni.WriteString(obj.ClassName, propriedade.Name, valor);
+         end
+         else
+         begin
+
+            if length(propriedade.GetAttributes) > 0 then
+            begin
+               for atributos in propriedade.GetAttributes do
+               begin
+                  if atributos is TEnumHelper then
+                  begin
+                     arquioIni.WriteString(obj.ClassName, propriedade.Name, TEnumHelper(atributos).nome);
+                     break;
+                  end;
+               end;
+            end
+            else
+               arquioIni.WriteString(obj.ClassName, propriedade.Name,
+                 VarToStr(propriedade.GetValue(obj).AsVariant));
+         end;
       end;
 
    finally

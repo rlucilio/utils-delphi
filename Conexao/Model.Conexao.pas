@@ -15,9 +15,9 @@ type
       Fconexao: TFDConnection;
    protected
       constructor Create;
-      property Conexao: TFDConnection read Fconexao write Fconexao;
-      function criarBanco(script: TStrings): iModelConexao; virtual;abstract;
+      function criarBanco(script: TStrings): iModelConexao; virtual; abstract;
    public
+      property Conexao: TFDConnection read Fconexao write Fconexao;
       destructor Destroy; override;
    end;
 

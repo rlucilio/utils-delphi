@@ -1,9 +1,9 @@
-unit Controller.Exception;
+unit Model.Exception;
 
 interface
 
 uses
-   System.SysUtils, VCL.Forms, Controller.Log;
+   System.SysUtils, FMX.Forms, Model.Txt.log;
 
 type
    TControllerException = class
@@ -35,13 +35,11 @@ var
 begin
    try
       erro := TStringBuilder.Create;
-      erro.AppendLine.Append('Erro: ').Append(E.Message)
-        .AppendLine.Append('Classe: ').Append(E.ClassName)
-        .AppendLine.Append('Unit: ').Append(E.UnitName)
-        .AppendLine.Append('----').Append(FormatDateTime('hh:nn dd/mm/yyyy',
-        now)).Append('----');
+      erro.AppendLine.Append('SAT').Append('Erro: ').Append(E.Message).AppendLine.Append('Classe: ').Append(E.ClassName)
+        .AppendLine.Append('Unit: ').Append(E.UnitName).AppendLine.Append('----')
+        .Append(FormatDateTime('hh:nn dd/mm/yyyy', now)).Append('----');
 
-      TControllerLog.New.SalvarLog('Erros', erro.ToString);
+      TModelLogTxt.New.Gravar('Erros.txt', erro.ToString);
    finally
       FreeAndNil(erro);
    end;
