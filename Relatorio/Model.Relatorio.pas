@@ -2,7 +2,7 @@ unit Model.Relatorio;
 
 interface
 
-uses Model.Relatorio.Interfaces, System.Classes, RLReport;
+uses Model.Relatorio.Interfaces, System.Classes, RLReport, ACBrUtil;
 
 type
 
@@ -223,9 +223,9 @@ begin
       memo.Behavior := [beSiteExpander];
       memo.Font.Charset := DEFAULT_CHARSET;
       memo.Font.Color := $000000;
-      memo.Font.Size := 8;
+      memo.Font.Size := 9;
       memo.Font.Name := 'Lucida Console';
-      memo.Font.Style := [];
+      memo.Font.Style := [TFontStyle.fsBold];
       memo.ParentFont := False;
       AddLinhaColunas(memo.Lines, informacaoLista.colunas.ToArray,
         informacaoLista.qtdMaxCaracteres.ToArray);
@@ -264,14 +264,19 @@ begin
 
                end;
 
-               if not(linhaAjustada[I].IsEmpty) then
-                  if linhaAjustada[I].Contains('|') then
-                  begin
-                     memo.Add(' ');
-                  end
-                  else
-                     memo.Add(trim(linhaAjustada[I]));
+               if fRelatorio.PageSetup.PaperWidth <> 145 then
+               begin
 
+                  if not(linhaAjustada[I].IsEmpty) then
+                     if linhaAjustada[I].Contains('|') then
+                     begin
+                        memo.Add(' ');
+                     end
+                     else
+                        memo.Add(trim(linhaAjustada[I]));
+               end
+               else
+                  memo.Add(trim(linhaAjustada[I]));
             end;
          end;
 
@@ -343,7 +348,7 @@ begin
                   begin
                      if memoTemporario[J] = '' then
                         memoTemporario[J] :=
-                          alinhaDireita('',
+                          padright('',
                           espacoEmBranco - CaracteresPorColuna[I], ' ');
 
                      antigaLinha := memoTemporario[J];
@@ -404,18 +409,25 @@ begin
    fRelatorio.PageSetup.PaperSize := fpCustom;
 
    fRelatorio.PrintDialog := False;
-   fRelatorio.PageBreaking := pbNone;
+  fRelatorio.PageBreaking := pbNone;
    fRelatorio.ShowProgress := False;
    fRelatorio.Visible := False;
    fRelatorio.UnlimitedHeight := true;
 
-   fRelatorio.Margins.TopMargin := FmargeSuperior;
-   fRelatorio.Margins.BottomMargin := FmargeInferior;
-   fRelatorio.Margins.RightMargin := FmargeDireita;
-   fRelatorio.Margins.LeftMargin := FmargeEsquerda;
+   if FlarguraPapel <> 145 then
+   begin
+      fRelatorio.Margins.TopMargin := FmargeSuperior;
+      fRelatorio.Margins.BottomMargin := FmargeInferior;
+      fRelatorio.Margins.RightMargin := FmargeDireita;
+      fRelatorio.Margins.LeftMargin := FmargeEsquerda;
 
-   fRelatorio.PageSetup.PaperWidth := round(FlarguraPapel / MMAsPixels);
-   fRelatorio.PageSetup.PaperHeight := FalturaPapel;
+      fRelatorio.PageSetup.PaperWidth := round(FlarguraPapel / MMAsPixels);
+      fRelatorio.PageSetup.PaperHeight := FalturaPapel;
+   end
+   else
+   begin
+      fRelatorio.PageSetup.PaperWidth := FlarguraPapel;
+   end;
 end;
 
 destructor TModelRelatorio.Destroy;
