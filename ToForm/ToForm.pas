@@ -416,57 +416,65 @@ var
   tipo: TRttiType;
 begin
   result := self;
+  if not Assigned(obj) then
+    Exit;
 
   contexto := TRttiContext.Create;
   try
+
     tipo := contexto.GetType(obj.ClassInfo);
+
     for propridade in tipo.GetProperties do
     begin
 
-      if (propridade.IsWritable) then
+      if not propridade.IsWritable then
+        Continue;
+
+      if propridade.GetValue(obj).IsType<string>() then
       begin
+        PropToText(propridade, obj);
+        Continue;
+      end;
 
-        if (propridade.GetValue(obj).IsOrdinal) and
-          not((propridade.GetValue(obj).IsType<Integer>()) or
-          (propridade.GetValue(obj).IsType<char>()) or
-          (propridade.GetValue(obj).IsType<Boolean>())) then
-        begin
-          PropToIndex(propridade, obj);
-          Continue;
-        end;
+      if propridade.GetValue(obj).IsType<Integer>() then
+      begin
+        PropToText(propridade, obj);
+        Continue;
+      end;
 
-        if propridade.GetValue(obj).IsType<string>() then
-        begin
-          PropToText(propridade, obj);
-          Continue;
-        end;
+      if propridade.GetValue(obj).IsType<Boolean>() then
+      begin
+        PropToChecked(propridade, obj);
+        Continue;
+      end;
 
-        if propridade.GetValue(obj).IsType<Integer>() then
-        begin
-          PropToText(propridade, obj);
-          Continue;
-        end;
+      if propridade.GetValue(obj).IsType<Double>() then
+      begin
+        PropToText(propridade, obj);
+        Continue;
+      end;
 
-        if propridade.GetValue(obj).IsType<Boolean>() then
-        begin
-          PropToChecked(propridade, obj);
-          Continue;
-        end;
+      if (propridade.GetValue(obj).IsType<TDate>) or
+        (propridade.GetValue(obj).IsType<TTime>() or
+        (propridade.GetValue(obj).IsType<TDateTime>())) then
+      begin
+        propToDateTime(propridade, obj);
+        Continue;
+      end;
 
-        if (propridade.GetValue(obj).IsType<TDate>) or
-          (propridade.GetValue(obj).IsType<TTime>() or
-          (propridade.GetValue(obj).IsType<TDateTime>())) then
-        begin
-          propToDateTime(propridade, obj);
-          Continue;
-        end;
+      if propridade.GetValue(obj).IsType < TList < string >> () then
+      begin
+        propToLines(propridade, obj);
+        Continue;
+      end;
 
-        if propridade.GetValue(obj).IsType < TList < string >> () then
-        begin
-          propToLines(propridade, obj);
-          Continue;
-        end;
-
+      if (propridade.GetValue(obj).IsOrdinal) and
+        not((propridade.GetValue(obj).IsType<Integer>()) or
+        (propridade.GetValue(obj).IsType<char>()) or
+        (propridade.GetValue(obj).IsType<Boolean>())) then
+      begin
+        PropToIndex(propridade, obj);
+        Continue;
       end;
 
     end;
