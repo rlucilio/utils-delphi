@@ -69,15 +69,6 @@ begin
     if (propridade.IsWritable) then
     begin
 
-      if (propridade.GetValue(obj).IsOrdinal) and
-        not((propridade.GetValue(obj).IsType<Integer>()) or
-        (propridade.GetValue(obj).IsType<char>()) or
-        (propridade.GetValue(obj).IsType<Boolean>())) then
-      begin
-        setEnum(propridade, obj);
-        Continue;
-      end;
-
       if propridade.GetValue(obj).IsType<string>() then
       begin
         SetString(propridade, obj);
@@ -96,11 +87,9 @@ begin
         Continue;
       end;
 
-      if (propridade.GetValue(obj).IsType<TDate>) or
-        (propridade.GetValue(obj).IsType<TTime>() or
-        (propridade.GetValue(obj).IsType<TDateTime>())) then
+      if propridade.GetValue(obj).IsType<Double>() then
       begin
-        SetDateTime(propridade, obj);
+        SetFloat(propridade, obj);
         Continue;
       end;
 
@@ -110,10 +99,18 @@ begin
         Continue;
       end;
 
-      if propridade.GetValue(obj).IsType<Double>() and
-        not((propridade.GetValue(obj).IsType<TDateTime>())) then
+      if (propridade.GetValue(obj).IsType<TDate>) or
+        (propridade.GetValue(obj).IsType<TTime>() or
+        (propridade.GetValue(obj).IsType<TDateTime>())) then
       begin
-        SetFloat(propridade, obj);
+        SetDateTime(propridade, obj);
+        Continue;
+      end;
+
+      if (propridade.GetValue(obj).IsOrdinal) and
+        not((propridade.GetValue(obj).IsType<char>())) then
+      begin
+        setEnum(propridade, obj);
         Continue;
       end;
 
@@ -274,13 +271,15 @@ procedure TToForm.SetFloat(propridade: TRttiProperty; obj: TObject);
 var
   _propriedade: TRttiProperty;
   _componente: TComponent;
+  value: Double;
 begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcText, _componente);
 
+  value := StrToFloatDef(_propriedade.GetValue(_componente).AsString, 0);
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
-    propridade.SetValue(obj, _propriedade.GetValue(_componente).AsExtended);
+    propridade.SetValue(obj, value);
   end;
 end;
 
@@ -392,21 +391,18 @@ end;
 
 procedure TToForm.AcaoASerFeita(acao: TTipoAcaoConversao; obj: TObject);
 var
-  salvaDados: iSalvaCarregaConfiguracao;
+  salvaDados: iConfiguravel;
 begin
-  case acao of
-    tacSalvar:
-      begin
-        if Supports(obj, iSalvaCarregaConfiguracao, salvaDados) then
-          salvaDados.salva(obj)
-        else
-        begin
-          raise Exception.Create('Essa classe não implementa o método salvar');
-        end;
-      end;
-    tacNada:
-      Exit;
-  end;
+//  case acao of
+//    tacSalvar:
+//      begin
+//        if Supports(obj, iConfiguravel, salvaDados) then
+//          salvaDados.salvar;
+//
+//      end;
+//    tacNada:
+//      Exit;
+//  end;
 end;
 
 function TToForm.ClassToForm(obj: TObject): iToForm;
@@ -426,6 +422,15 @@ begin
 
     for propridade in tipo.GetProperties do
     begin
+
+      if (propridade.GetValue(obj).IsOrdinal) and
+        not((propridade.GetValue(obj).IsType<Integer>()) or
+        (propridade.GetValue(obj).IsType<char>()) or
+        (propridade.GetValue(obj).IsType<Boolean>())) then
+      begin
+        PropToIndex(propridade, obj);
+        Continue;
+      end;
 
       if not propridade.IsWritable then
         Continue;
@@ -465,15 +470,6 @@ begin
       if propridade.GetValue(obj).IsType < TList < string >> () then
       begin
         propToLines(propridade, obj);
-        Continue;
-      end;
-
-      if (propridade.GetValue(obj).IsOrdinal) and
-        not((propridade.GetValue(obj).IsType<Integer>()) or
-        (propridade.GetValue(obj).IsType<char>()) or
-        (propridade.GetValue(obj).IsType<Boolean>())) then
-      begin
-        PropToIndex(propridade, obj);
         Continue;
       end;
 

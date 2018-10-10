@@ -63,8 +63,11 @@ end;
 
 destructor TPersistenciaIni.Destroy;
 begin
-  FreeAndNil(arquioIni);
-  FreeAndNil(_resultado);
+  if Assigned(arquioIni) then
+     FreeAndNil(arquioIni);
+
+  if Assigned(_resultado) then
+      FreeAndNil(_resultado);
   inherited;
 end;
 
