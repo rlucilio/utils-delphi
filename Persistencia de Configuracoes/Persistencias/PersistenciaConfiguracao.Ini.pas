@@ -1,25 +1,24 @@
-unit Model.Ini;
+unit PersistenciaConfiguracao.Ini;
 
 interface
 
-uses Model.Ini.Interfaces, System.SysUtils, System.iniFiles, System.Rtti,
+uses PersistenciaConfiguracao.Interfaces, System.SysUtils, System.iniFiles, System.Rtti,
   System.Generics.Collections;
 
 type
-  TModelIni = class(TInterfacedObject, iModelIni)
+  TPersistenciaIni = class(TInterfacedObject, iSalvaCarregaConfiguracao)
   private
     Farquivo: string;
     arquioIni: TIniFile;
-    Fresultado: TDictionary<string, string>;
-    //
+    _resultado: TDictionary<string, string>;
     constructor Create;
   public
-    class function New: iModelIni;
+    class function New: iSalvaCarregaConfiguracao;
     destructor Destroy; override;
-    function salva(obj: TObject): iModelIni;
-    function carrega(obj: TObject): iModelIni;
+    function salva(obj: TObject): iSalvaCarregaConfiguracao;
+    function carrega(obj: TObject): iSalvaCarregaConfiguracao;
+    function getResultado: TDictionary<string, string>;
     property arquivo: string read Farquivo;
-    property resultado: TDictionary<string, string> read Fresultado;
   end;
 
 implementation
@@ -27,9 +26,9 @@ implementation
 uses
   System.Variants;
 
-{ TModelIni }
+{ TPersistenciaIni }
 
-function TModelIni.carrega(obj: TObject): iModelIni;
+function TPersistenciaIni.carrega(obj: TObject): iSalvaCarregaConfiguracao;
 var
   propriedade: TRttiProperty;
   contexto: TRttiContext;
@@ -37,7 +36,7 @@ var
   valor, atributo: string;
 begin
   result := self;
-  resultado.Clear;
+  _resultado.Clear;
   contexto := TRttiContext.Create;
   try
     tipo := contexto.GetType(obj.ClassInfo);
@@ -46,7 +45,7 @@ begin
     begin
       atributo := propriedade.Name;
       valor := arquioIni.ReadString(obj.ClassName, propriedade.Name, '');
-      resultado.Add(atributo, valor);
+      _resultado.Add(atributo, valor);
     end;
 
   finally
@@ -54,28 +53,32 @@ begin
   end;
 end;
 
-constructor TModelIni.Create;
+constructor TPersistenciaIni.Create;
 begin
   inherited Create;
-  Fresultado := TDictionary<string, string>.Create;
+  _resultado := TDictionary<string, string>.Create;
   Farquivo := ExtractFilePath(ParamStr(0)) + '\config.ini';
   arquioIni := TIniFile.Create(Farquivo);
 end;
 
-destructor TModelIni.Destroy;
+destructor TPersistenciaIni.Destroy;
 begin
   FreeAndNil(arquioIni);
-  FreeAndNil(Fresultado);
+  FreeAndNil(_resultado);
   inherited;
 end;
 
-class function TModelIni.New: iModelIni;
+function TPersistenciaIni.getResultado: TDictionary<string, string>;
 begin
-  result := self.Create;
-
+  Result:= _resultado;
 end;
 
-function TModelIni.salva(obj: TObject): iModelIni;
+class function TPersistenciaIni.New: iSalvaCarregaConfiguracao;
+begin
+  result := self.Create;
+end;
+
+function TPersistenciaIni.salva(obj: TObject): iSalvaCarregaConfiguracao;
 var
   propriedade: TRttiProperty;
   contexto: TRttiContext;

@@ -4,7 +4,7 @@ interface
 
 uses
   ToForm.Interfaces, FMX.Forms, System.Rtti, System.SysUtils, System.Classes,
-  System.Generics.Collections;
+  System.Generics.Collections, PersistenciaConfiguracao.Interfaces;
 
 type
   TToForm = class(TInterfacedObject, iToForm)
@@ -37,7 +37,7 @@ type
 implementation
 
 uses
-  System.Variants, TypInfo, Model.Ini.Interfaces;
+  System.Variants, TypInfo;
 
 { TMinhaClasse }
 
@@ -392,13 +392,13 @@ end;
 
 procedure TToForm.AcaoASerFeita(acao: TTipoAcaoConversao; obj: TObject);
 var
-  Ini: iModelIni;
+  salvaDados: iSalvaCarregaConfiguracao;
 begin
   case acao of
     tacSalvar:
       begin
-        if Supports(obj, iModelIni, Ini) then
-          Ini.salva(obj)
+        if Supports(obj, iSalvaCarregaConfiguracao, salvaDados) then
+          salvaDados.salva(obj)
         else
         begin
           raise Exception.Create('Essa classe não implementa o método salvar');
