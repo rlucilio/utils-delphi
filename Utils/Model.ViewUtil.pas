@@ -3,11 +3,12 @@ unit Model.ViewUtil;
 interface
 
 uses
-  FMX.Types;
+  FMX.Types, FMX.Printer;
 
 function ResultadoDaPergunta(titulo, pergunta: string): string;
 function SelecionarCaminhoDoArquivo(filtro, titulo: string): string;
 procedure animacaoPulsar(componenteVisual: TFmxObject; TamanhoOriginal: double);
+function selecionarImpressora: string;
 
 implementation
 
@@ -62,19 +63,32 @@ begin
 
   if tamanho = TamanhoOriginal then
   begin
-    TAnimator.AnimateFloat(componenteVisual, 'Width',
-      tamanho + tamanhoAnimacao, 0.2, TAnimationType.&In, TInterpolationType.Quadratic);
+    TAnimator.AnimateFloat(componenteVisual, 'Width', tamanho + tamanhoAnimacao,
+      0.2, TAnimationType.&In, TInterpolationType.Quadratic);
 
-    TAnimator.AnimateFloat(componenteVisual, 'Height',
-      altura + tamanhoAnimacao, 0.2, TAnimationType.&In, TInterpolationType.Quadratic);
+    TAnimator.AnimateFloat(componenteVisual, 'Height', altura + tamanhoAnimacao,
+      0.2, TAnimationType.&In, TInterpolationType.Quadratic);
   end
   else
   begin
-    TAnimator.AnimateFloat(componenteVisual, 'Width',
-      tamanho - tamanhoAnimacao, 0.2, TAnimationType.Out, TInterpolationType.Quadratic);
+    TAnimator.AnimateFloat(componenteVisual, 'Width', tamanho - tamanhoAnimacao,
+      0.2, TAnimationType.Out, TInterpolationType.Quadratic);
 
-    TAnimator.AnimateFloat(componenteVisual, 'Height',
-      altura - tamanhoAnimacao, 0.2, TAnimationType.Out, TInterpolationType.Quadratic);
+    TAnimator.AnimateFloat(componenteVisual, 'Height', altura - tamanhoAnimacao,
+      0.2, TAnimationType.Out, TInterpolationType.Quadratic);
+  end;
+end;
+
+function selecionarImpressora: string;
+var
+  dialog: TPrintDialog;
+begin
+  dialog := TPrintDialog.Create(nil);
+  try
+    dialog.Execute;
+    Result := Printer.ActivePrinter.Device;
+  finally
+    dialog.Free;
   end;
 end;
 

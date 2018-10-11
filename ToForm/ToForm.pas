@@ -292,7 +292,7 @@ begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcText, _componente);
 
-  value := StrToIntDef(_propriedade.GetValue(_componente).AsString, -1);
+  value := StrToIntDef(_propriedade.GetValue(_componente).AsString, 0);
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
     propridade.SetValue(obj, value);
