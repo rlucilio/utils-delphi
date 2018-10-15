@@ -9,7 +9,6 @@ type
    iModelEmail = interface
       ['{FD148F15-83DC-4700-96AC-0EA2374CD48C}']
       function setServer(host, senha: string): iModelEmail;
-      function validaEmail(Email: string): boolean;
       function setEnvio(emailsDestinatarios: TArray<string>; assunto: string): iModelEmail;
       function setMensagem(mensagemASerEnviada: string): iModelEmail;
       function setAnexos(anexos: TArray<string>): iModelEmail;

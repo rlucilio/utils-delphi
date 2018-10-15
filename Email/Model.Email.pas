@@ -21,7 +21,7 @@ type
       class function New(emailRemetente, nomeRemetente: string): iModelEmail;
       destructor Destroy; override;
       function setServer(host, senha: string): iModelEmail;
-      function validaEmail(Email: string): boolean;
+      class function validaEmail(Email: string): boolean; overload;
       function setEnvio(emailsDestinatarios: TArray<string>; assunto: string): iModelEmail;
       function setMensagem(mensagemASerEnviada: string): iModelEmail;
       function setAnexos(anexos: TArray<string>): iModelEmail;
@@ -62,6 +62,11 @@ begin
    SMTP.host := host;
    SMTP.Username := emailRemetente;
    SMTP.Password := senha;
+end;
+
+class function TModelEmail.validaEmail(Email: string): boolean;
+begin
+  result := TRegEx.IsMatch(Email, EMAILREG);
 end;
 
 constructor TModelEmail.Create(emailRemetente, nomeRemetente: string);
@@ -157,10 +162,5 @@ begin
    result := self.Create(emailRemetente, nomeRemetente);
 end;
 
-function TModelEmail.validaEmail(Email: string): boolean;
-begin
-   result := TRegEx.IsMatch(Email, EMAILREG);
-
-end;
 
 end.
