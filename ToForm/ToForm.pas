@@ -69,6 +69,15 @@ begin
     if (propridade.IsWritable) then
     begin
 
+      if (propridade.GetValue(obj).IsOrdinal) and
+        not((propridade.GetValue(obj).IsType<Integer>()) or
+        (propridade.GetValue(obj).IsType<char>()) or
+        (propridade.GetValue(obj).IsType<Boolean>())) then
+      begin
+        setEnum(propridade, obj);
+        Continue;
+      end;
+
       if propridade.GetValue(obj).IsType<string>() then
       begin
         SetString(propridade, obj);
@@ -104,13 +113,6 @@ begin
         (propridade.GetValue(obj).IsType<TDateTime>())) then
       begin
         SetDateTime(propridade, obj);
-        Continue;
-      end;
-
-      if (propridade.GetValue(obj).IsOrdinal) and
-        not((propridade.GetValue(obj).IsType<char>())) then
-      begin
-        setEnum(propridade, obj);
         Continue;
       end;
 
@@ -241,10 +243,9 @@ begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcDateTime, _componente);
 
-  value := FloatToDateTime(_propriedade.GetValue(_componente).AsExtended);
-
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
+    value := FloatToDateTime(_propriedade.GetValue(_componente).AsExtended);
     propridade.SetValue(obj, value);
   end;
 end;
@@ -276,9 +277,9 @@ begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcText, _componente);
 
-  value := StrToFloatDef(_propriedade.GetValue(_componente).AsString, 0);
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
+    value := StrToFloatDef(_propriedade.GetValue(_componente).AsString, 0);
     propridade.SetValue(obj, value);
   end;
 end;
@@ -292,9 +293,9 @@ begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcText, _componente);
 
-  value := StrToIntDef(_propriedade.GetValue(_componente).AsString, 0);
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
+    value := StrToIntDef(_propriedade.GetValue(_componente).AsString, 0);
     propridade.SetValue(obj, value);
   end;
 end;
@@ -310,20 +311,23 @@ begin
   _propriedade := VarrerComponente(Concat(obj.ClassName, '_', propridade.Name),
     tcLines, _componente);
 
-  _auxTStrings := _propriedade.GetValue(_componente).AsType<TStrings>();
-
-  value := propridade.GetValue(obj).AsType < TList < string >> ();
-  value.Clear;
-  for item in _auxTStrings do
-  begin
-    value.Add(item);
-  end;
-
   if (Assigned(_componente)) and (Assigned(_propriedade)) then
   begin
-    propridade.SetValue(obj, value);
-  end;
+    _auxTStrings := _propriedade.GetValue(_componente).AsType<TStrings>();
 
+    value := propridade.GetValue(obj).AsType < TList < string >> ();
+    value.Clear;
+    for item in _auxTStrings do
+    begin
+      value.Add(item);
+    end;
+
+    if (Assigned(_componente)) and (Assigned(_propriedade)) then
+    begin
+      propridade.SetValue(obj, value);
+    end;
+
+  end;
 end;
 
 procedure TToForm.SetString(propridade: TRttiProperty; obj: TObject);
@@ -393,16 +397,16 @@ procedure TToForm.AcaoASerFeita(acao: TTipoAcaoConversao; obj: TObject);
 var
   salvaDados: iConfiguravel;
 begin
-//  case acao of
-//    tacSalvar:
-//      begin
-//        if Supports(obj, iConfiguravel, salvaDados) then
-//          salvaDados.salvar;
-//
-//      end;
-//    tacNada:
-//      Exit;
-//  end;
+  // case acao of
+  // tacSalvar:
+  // begin
+  // if Supports(obj, iConfiguravel, salvaDados) then
+  // salvaDados.salvar;
+  //
+  // end;
+  // tacNada:
+  // Exit;
+  // end;
 end;
 
 function TToForm.ClassToForm(obj: TObject): iToForm;
@@ -423,6 +427,9 @@ begin
     for propridade in tipo.GetProperties do
     begin
 
+      if not propridade.IsReadable then
+        Continue;
+
       if (propridade.GetValue(obj).IsOrdinal) and
         not((propridade.GetValue(obj).IsType<Integer>()) or
         (propridade.GetValue(obj).IsType<char>()) or
@@ -431,9 +438,6 @@ begin
         PropToIndex(propridade, obj);
         Continue;
       end;
-
-      if not propridade.IsWritable then
-        Continue;
 
       if propridade.GetValue(obj).IsType<string>() then
       begin
