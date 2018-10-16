@@ -27,12 +27,23 @@ function alinhaTextoAEsquerda(Texto: string; Qtd: Integer; Ch: Char): string;
 function addDelimitador(const AText: String; const ADelimiter: Char;
   AStringList: TStrings; const AQuoteChar: Char = '"'): Integer;
 
+procedure AbrePastaDeLogs();
+
 implementation
 
 uses
   System.SysUtils, Winapi.Windows, {$IFDEF FMX} FMX.Forms, {$ELSE} VCL.Forms
 {$ENDIF},
-  System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils;
+  System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
+  Model.PowerCMD;
+
+procedure AbrePastaDeLogs();
+begin
+  if not DirectoryExists(tpath.GetDocumentsPath + '\SICLOP\') then
+    ForceDirectories(tpath.GetDocumentsPath + '\SICLOP\');
+
+  TModelPowerCMD.new(HInstance).ExecDir(tpath.GetDocumentsPath + '\SICLOP\');
+end;
 
 function addDelimitador(const AText: String; const ADelimiter: Char;
   AStringList: TStrings; const AQuoteChar: Char): Integer;
