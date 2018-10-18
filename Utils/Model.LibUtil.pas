@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, System.Win.Registry;
+  System.Win.Registry, System.Classes;
 
 procedure instalarFontes(nomeRecurso, nomeArquivo: string);
 
@@ -29,13 +29,36 @@ function addDelimitador(const AText: String; const ADelimiter: Char;
 
 procedure AbrePastaDeLogs();
 
+function getListaPastas(dir: string): TArray<string>;
+
 implementation
 
 uses
   System.SysUtils, Winapi.Windows, {$IFDEF FMX} FMX.Forms, {$ELSE} VCL.Forms
 {$ENDIF},
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
-  Model.PowerCMD;
+  Model.PowerCMD, System.Generics.Collections;
+
+function getListaPastas(dir: string): TArray<string>;
+var
+  resultado: TList<string>;
+  item: string;
+begin
+  resultado:= TList<string>.Create();
+  try
+    if DirectoryExists(dir) then
+    begin
+      for item in TDirectory.GetDirectories(dir) do
+      begin
+        resultado.Add(item)
+      end;
+
+      Result := resultado.ToArray;
+    end;
+  finally
+    FreeAndNil(resultado);
+  end;
+end;
 
 procedure AbrePastaDeLogs();
 begin
@@ -153,10 +176,13 @@ var
 begin
   Zip := TZipFile.Create;
   Result := GetCurrentDir + '\' + nomeArquivoZip + '.zip';
+  if FileExists(Result) then
+    TFile.Delete(Result);
+
   try
     Zip.ZipDirectoryContents(Result, pasta);
   finally
-    freeandnil(Zip);
+    FreeAndNil(Zip);
   end;
 
 end;
@@ -177,7 +203,7 @@ begin
         Zip.Add(item);
     end;
   finally
-    freeandnil(Zip);
+    FreeAndNil(Zip);
   end;
 
 end;
@@ -221,7 +247,7 @@ begin
       nomePrograma, ExtractFilePath(ParamStr(0)) +
       ExtractFileName(ParamStr(0)));
   finally
-    freeandnil(reg);
+    FreeAndNil(reg);
   end;
 end;
 
@@ -263,9 +289,9 @@ begin
         AddFontResource(PChar(localDoArquivo));
       finally
         if Assigned(recurso) then
-          freeandnil(recurso);
+          FreeAndNil(recurso);
         if Assigned(arquivobinario) then
-          freeandnil(arquivobinario);
+          FreeAndNil(arquivobinario);
       end;
 
     end
