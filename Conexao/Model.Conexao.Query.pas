@@ -75,6 +75,7 @@ begin
       qry.Connection := fconexao;
       qry.Close;
       qry.SQL.Add(Query.ToString);
+      qry.Open();
       dados := qry;
    except
       FreeAndNil(qry);

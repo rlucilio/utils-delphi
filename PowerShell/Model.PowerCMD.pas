@@ -1,5 +1,6 @@
 unit Model.PowerCMD;
-
+
+
 interface
 
 uses
@@ -51,7 +52,7 @@ begin
       try
 
          if pComando.IsEmpty then
-            raise EPowerCMD.Create('O comando está vazio');
+            raise EPowerCMD.Create('O comando estï¿½ vazio');
 
          Randomize;
          vArquivo := IntToStr(Random(100000));
@@ -130,4 +131,4 @@ begin
 end;
 
 end.
-
+
