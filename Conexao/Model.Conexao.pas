@@ -29,6 +29,7 @@ constructor TModelConexao.Create;
 begin
    inherited Create;
    Conexao := TFDConnection.Create(nil);
+   Conexao.ResourceOptions.SilentMode:= true;
 end;
 
 destructor TModelConexao.Destroy;
