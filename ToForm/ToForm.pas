@@ -351,7 +351,7 @@ var
   _nomeComponente: string;
   I: Integer;
 
-  _propridade: TRttiProperty;
+  _propridade, Item: TRttiProperty;
   contexto: TRttiContext;
   tipo: TRttiType;
 begin
@@ -379,7 +379,17 @@ begin
           tcDateTime:
             _propridade := tipo.GetProperty('DateTime');
           tcLines:
-            _propridade := tipo.GetProperty('Lines');
+            begin
+              for Item in tipo.GetProperties do
+              begin
+                if item.Name = 'Lines' then
+                  _propridade:= item;
+
+                if item.Name = 'Items' then
+                  _propridade:= item;
+
+              end;
+            end;
         end;
 
         result := _propridade;
@@ -397,16 +407,16 @@ procedure TToForm.AcaoASerFeita(acao: TTipoAcaoConversao; obj: TObject);
 var
   salvaDados: iConfiguravel;
 begin
-  // case acao of
-  // tacSalvar:
-  // begin
-  // if Supports(obj, iConfiguravel, salvaDados) then
-  // salvaDados.salvar;
-  //
-  // end;
-  // tacNada:
-  // Exit;
-  // end;
+   case acao of
+   tacSalvar:
+   begin
+   if Supports(obj, iConfiguravel, salvaDados) then
+    salvaDados.salvar;
+
+   end;
+   tacNada:
+   Exit;
+   end;
 end;
 
 function TToForm.ClassToForm(obj: TObject): iToForm;
@@ -414,6 +424,7 @@ var
   propridade: TRttiProperty;
   contexto: TRttiContext;
   tipo: TRttiType;
+  nome: string;
 begin
   result := self;
   if not Assigned(obj) then
@@ -429,6 +440,13 @@ begin
 
       if not propridade.IsReadable then
         Continue;
+
+
+      if propridade.GetValue(obj).IsType<Boolean>() then
+      begin
+        PropToChecked(propridade, obj);
+        Continue;
+      end;
 
       if (propridade.GetValue(obj).IsOrdinal) and
         not((propridade.GetValue(obj).IsType<Integer>()) or
@@ -451,11 +469,7 @@ begin
         Continue;
       end;
 
-      if propridade.GetValue(obj).IsType<Boolean>() then
-      begin
-        PropToChecked(propridade, obj);
-        Continue;
-      end;
+
 
       if propridade.GetValue(obj).IsType<Double>() then
       begin
