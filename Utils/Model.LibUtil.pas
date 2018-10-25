@@ -44,7 +44,7 @@ var
   resultado: TList<string>;
   item: string;
 begin
-  resultado:= TList<string>.Create();
+  resultado := TList<string>.Create();
   try
     if DirectoryExists(dir) then
     begin
@@ -175,7 +175,7 @@ var
   Zip: TZipFile;
 begin
   Zip := TZipFile.Create;
-  Result := GetCurrentDir + '\' + nomeArquivoZip + '.zip';
+  Result := ExtractFilePath(ParamStr(0)) + nomeArquivoZip + '.zip';
   if FileExists(Result) then
     TFile.Delete(Result);
 
@@ -195,12 +195,15 @@ var
 begin
   Zip := TZipFile.Create;
   try
-    Result := GetCurrentDir + '\' + nomeArquivoZip + '.zip';
-    Zip.open(Result, zmWrite);
-    for item in arquivos do
+    Result := ExtractFilePath(ParamStr(0)) + nomeArquivoZip + '.zip';
+    if Length(arquivos) > 0 then
     begin
-      if fileExists(item) then
-        Zip.Add(item);
+      Zip.open(Result, zmWrite);
+      for item in arquivos do
+      begin
+        if FileExists(item) then
+          Zip.Add(item);
+      end;
     end;
   finally
     FreeAndNil(Zip);
@@ -212,7 +215,7 @@ procedure limpaArquivosZip;
 var
   item: string;
 begin
-  for item in TDirectory.GetFiles(GetCurrentDir, '*.zip') do
+  for item in TDirectory.GetFiles(ExtractFilePath(ParamStr(0)), '*.zip') do
   begin
     deletefile(PWideChar(item));
   end;
@@ -277,7 +280,7 @@ var
   recurso: TResourceStream;
 begin
   try
-    if not fileExists(GetCurrentDir + '\' + nomeArquivo) then
+    if not FileExists(GetCurrentDir + '\' + nomeArquivo) then
     begin
       try
         recurso := TResourceStream.Create(HInstance, nomeRecurso, RT_RCDATA);

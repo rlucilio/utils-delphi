@@ -48,6 +48,7 @@ begin
     IInterface(dialog));
 
   dialog.InputQuerySync(titulo, [pergunta], resposta);
+
   Result := resposta[1];
 end;
 
