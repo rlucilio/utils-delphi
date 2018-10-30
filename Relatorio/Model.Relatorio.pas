@@ -73,7 +73,7 @@ begin
   begin
     band := TRLBand.Create(fRelatorio);
     band.Parent := fRelatorio;
-    band.Margins.BottomMargin := 2;
+    band.Margins.BottomMargin := 1;
     band.AutoSize := true;
     band.BandType := btHeader;
   end;
@@ -199,8 +199,16 @@ begin
     lblInformacao := TRLLabel.Create(band);
 
     lblInformacao.Parent := band;
+
+    if not informacaoSimples.titulo.contains('-') then
+    begin
+      lblInformacao.AutoSize := False;
+      lblInformacao.Width := 150;
+    end;
+
     lblInformacao.Align := faLeft;
     lblInformacao.Caption := informacaoSimples.Informativo;
+    lblInformacao.Alignment:= taRightJustify;
     lblTitulo.Layout := tlCenter;
   end;
 
@@ -466,6 +474,7 @@ begin
   begin
     fRelatorio.Print;
   end;
+
 
   FreeAndNil(fRelatorio);
 
