@@ -18,6 +18,8 @@ function compactarArquivo(arquivos: TArray<string>;
 
 function compactarPasta(pasta, nomeArquivoZip: string): string;
 
+function DescompactarZip(const arquivoZip, localSalvamento: string): TArray<string>;
+
 procedure limpaArquivosZip;
 
 function alinhaTextoADireita(Texto: string; Qtd: Integer; Ch: Char): string;
@@ -38,6 +40,47 @@ uses
 {$ENDIF},
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
   Model.PowerCMD, System.Generics.Collections;
+
+
+function DescompactarZip(const arquivoZip, localSalvamento: string): TArray<string>;
+var
+  zipFile: TZipFile;
+  arquivosList: TList<string>;
+  item: string;
+begin
+  result:= [];
+  arquivosList:= TList<string>.Create;
+  zipFile:= TZipFile.Create;
+  try
+    try
+      if not FileExists(arquivoZip) then
+        raise Exception.Create('Arquivo Zip não foi encontrado');
+
+      if not DirectoryExists(localSalvamento) then
+        ForceDirectories(localSalvamento);
+
+      if not DirectoryExists(localSalvamento) then
+        raise Exception.Create('Não foi possível criar o local do salvamento');
+
+      zipFile.Open(arquivoZip, zmRead);
+      zipFile.ExtractAll(localSalvamento);
+      zipFile.Close();
+
+      for item in TDirectory.GetFiles(localSalvamento) do
+      begin
+        arquivosList.Add(item);
+      end;
+
+      Result:= arquivosList.ToArray();
+
+    except
+      raise Exception.Create('Erro ao Descompactar o arquivo');
+    end;
+  finally
+    FreeAndNil(arquivosList);
+    FreeAndNil(zipFile);
+  end;
+end;
 
 function getListaPastas(dir: string): TArray<string>;
 var
