@@ -1,49 +1,10 @@
-{ *************************************************************************** }
-{ }
-{ }
-{ Copyright (C) Amarildo Lacerda }
-{ }
-{ https://github.com/amarildolacerda }
-{ }
-{ }
-{ *************************************************************************** }
-{ }
-{ Licensed under the Apache License, Version 2.0 (the "License"); }
-{ you may not use this file except in compliance with the License. }
-{ You may obtain a copy of the License at }
-{ }
-{ http://www.apache.org/licenses/LICENSE-2.0 }
-{ }
-{ Unless required by applicable law or agreed to in writing, software }
-{ distributed under the License is distributed on an "AS IS" BASIS, }
-{ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }
-{ See the License for the specific language governing permissions and }
-{ limitations under the License. }
-{ }
-{ *************************************************************************** }
-unit System.Classes.Helper;
+unit Obj.Helper;
 
 interface
 
 uses System.Classes, System.SysUtils, System.Rtti, System.TypInfo, System.Json;
 
 Type
-
-  IFireEventProc = interface
-    ['{BBC08E72-6518-4BF8-8BEE-0A46FD8B351C}']
-    procedure SetOnEvent(const Value: TProc<TObject>);
-    procedure FireEvent(Sender: TObject);
-  end;
-
-  TObjectExt = class(System.TObject)
-  private
-    FOnFireEvent: TProc<TObject>;
-    procedure SetOnFireEvent(const Value: TProc<TObject>);
-  public
-    procedure FireEvent; overload;
-    procedure FireEvent(Sender: TObject); overload;
-    property OnFireEvent: TProc<TObject> read FOnFireEvent write SetOnFireEvent;
-  end;
 
   TCustomAttributeClass = class of TCustomAttribute;
   TMemberVisibilitySet = set of TMemberVisibility;
@@ -59,6 +20,8 @@ Type
     // metodos anonimous
     class procedure Using<T>(O: T; Proc: TProc<T>); static;
     class function Anonymous<T: Class>(O: T; Proc: TProc<T>): TObject; static;
+
+    //Processamentos concorrente
     class procedure Run<T: Class>(O: T; Proc: TProc<T>); overload; static;
     class procedure Run(Proc: TProc); overload; static;
     class procedure WaitFor<T: Class>(O: T; Proc: TProc<T>); overload; static;
@@ -107,24 +70,6 @@ Type
 
   end;
 
-  TTaskList = class(TThreadList)
-  private
-    FMaxThread: Integer;
-    procedure SetMaxThread(const Value: Integer);
-  public
-    constructor create;
-    procedure DoDestroyThread(Value: TObject);
-    procedure Run(Proc: TProc);
-    property MaxThread: Integer read FMaxThread write SetMaxThread;
-  end;
-
-
-  {
-  TCollectionHelper = Class Helper for TCollection
-      public
-        function ToJson:string;virtual;
-  end;
-  }
 
 implementation
 
@@ -163,10 +108,6 @@ begin
   th.WaitFor;
 end;
 
-procedure TObjectExt.FireEvent;
-begin
-  FireEvent(self);
-end;
 
 function TObjectHelper.&ContextFieldName(idx: Integer): string;
 var
@@ -594,61 +535,4 @@ begin
   Proc(O);
 end;
 
-{ TObject }
-
-procedure TObjectExt.FireEvent(Sender: TObject);
-begin
-  if assigned(FOnFireEvent) then
-    FOnFireEvent(Sender);
-end;
-
-procedure TObjectExt.SetOnFireEvent(const Value: TProc<TObject>);
-begin
-  FOnFireEvent := Value;
-end;
-
-{ TThreadedPool }
-
-constructor TTaskList.create;
-begin
-  inherited;
-  FMaxThread := 10;
-end;
-
-procedure TTaskList.DoDestroyThread(Value: TObject);
-begin
-  Remove(Value);
-end;
-
-procedure TTaskList.Run(Proc: TProc);
-var
-  T: TThread;
-begin
-  T := TThread.CreateAnonymousThread(Proc);
-  T.onTerminate := DoDestroyThread;
-  Add(T);
-  T.Start;
-end;
-
-procedure TTaskList.SetMaxThread(const Value: Integer);
-begin
-  FMaxThread := Value;
-end;
-
-{ TCollectionHelper }
-{
-function TCollectionHelper.ToJson: string;
-var j:TJsonArray;
-    i:integer;
-begin
-    j := TJsonArray.Create;
-    try
-      for I := 0 to count-1 do
-          j.AddElement( TJson.ObjectToJsonObject(  items[i] )   );
-      result := j.ToJSON;
-    finally
-      j.Free;
-    end;
-end;
-}
 end.
