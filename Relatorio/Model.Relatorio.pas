@@ -203,7 +203,7 @@ begin
     if not informacaoSimples.titulo.contains('-') then
     begin
       lblInformacao.AutoSize := False;
-      lblInformacao.Width := 150;
+      lblInformacao.Width := 120;
     end;
 
     lblInformacao.Align := faLeft;
