@@ -1,31 +1,8 @@
-{ *************************************************************************** }
-{ }
-{ }
-{ Copyright (C) Amarildo Lacerda }
-{ }
-{ https://github.com/amarildolacerda }
-{ }
-{ }
-{ *************************************************************************** }
-{ }
-{ Licensed under the Apache License, Version 2.0 (the "License"); }
-{ you may not use this file except in compliance with the License. }
-{ You may obtain a copy of the License at }
-{ }
-{ http://www.apache.org/licenses/LICENSE-2.0 }
-{ }
-{ Unless required by applicable law or agreed to in writing, software }
-{ distributed under the License is distributed on an "AS IS" BASIS, }
-{ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }
-{ See the License for the specific language governing permissions and }
-{ limitations under the License. }
-{ }
-{ *************************************************************************** }
-
-unit System.uJson;
+unit Json.Helper;
 
 interface
 
+{$I Delphi.inc }
 {$IFDEF UNICODE}
 {$DEFINE XE}
 {$ENDIF}
@@ -277,7 +254,7 @@ var
   V: string;
 begin
   j := JSONParse(dados);
-  // usar variavel local para não gerar conflito com Multi_threaded application
+  // usar variavel local para nï¿½o gerar conflito com Multi_threaded application
   try
     j.TryGetValue<string>(chave, V);
     result := V;
@@ -300,7 +277,7 @@ end;
   j: TJson;
   begin
   result := JSONParse(dados);
-  { // usar variavel local para não gerar conflito com Multi_threaded application
+  { // usar variavel local para nï¿½o gerar conflito com Multi_threaded application
   try
   result := j.parse(dados);
   finally
@@ -314,7 +291,7 @@ var
   I: IJson;
 begin
   j := JSONParse(dados);
-  // usar variavel local para não gerar conflito com Multi_threaded application
+  // usar variavel local para nï¿½o gerar conflito com Multi_threaded application
   try
     j.TryGetValue<integer>(chave, result);
   finally
