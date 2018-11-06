@@ -1,4 +1,4 @@
-unit Rtti.Helper;
+﻿unit Rtti.Helper;
 
 interface
 
@@ -29,7 +29,7 @@ type
     function IsUInt64: Boolean;
     function IsVariant: Boolean;
     function IsWord: Boolean;
-	function IsGuid: Boolean;
+	  function IsGuid: Boolean;
     function AsDouble: Double;
     function AsFloat: Extended;
     function AsSingle: Single;

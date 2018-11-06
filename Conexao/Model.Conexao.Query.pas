@@ -18,8 +18,10 @@ type
     _TemGroupBy: Boolean;
     _LinhasAfetadas: integer;
     FDataSet: TFDQuery;
+    FSQL: TStringBuilder;
     FTipo: TTipoOperacaoCRUD;
     constructor Create(Conexao: TFDConnection; tipoOperacao: TTipoOperacaoCRUD);
+    procedure ValueToStr(const value: TValue; var valueStr: string);
   public
     destructor Destroy; override;
     class function New(Conexao: TFDConnection; tipoOperacao: TTipoOperacaoCRUD)
@@ -31,7 +33,7 @@ type
     function Where(const whr: string): iModelQuery;
     function WhereAnd(const whr: string): iModelQuery;
     function WhereOR(const whr: string): iModelQuery;
-    function ParamValue(const paramName: string; const value: Variant)
+    function ParamValue(const paramName: string; const value: TValue)
       : iModelQuery;
     function setField(const fieldName: string; const paramName: string)
       : iModelQuery;
@@ -42,14 +44,14 @@ type
     function RowsAffected: integer;
     function GroupBy(const groupSQL: string): iModelQuery;
     function OrderBy(const orderSQL: string): iModelQuery;
-    function ToJson: string;
-    function getSQL: string;
+    function ToJson(alias: string = ''): string;
+    function getSQL(): string;
   end;
 
 implementation
 
 uses
-  Model.Conexao, System.Variants, DB.Helper;
+  Model.Conexao, System.Variants, Rtti.Helper, DB.Helper;
 
 { TQuery }
 
@@ -59,6 +61,7 @@ begin
   inherited Create;
   FDataSet := TFDQuery.Create(nil);
   FDataSet.Connection := Conexao;
+  FSQL:= TStringBuilder.Create();
   FDataSet.Close;
   FTipo := tipoOperacao;
   _TemWhere := false;
@@ -68,13 +71,13 @@ begin
 
   case FTipo of
     tpcInsert:
-      FDataSet.SQL.Add('INSERT INTO &TABELA ');
+      FSQL.Append('INSERT INTO &TABELA ');
     tpcUpdate:
-      FDataSet.SQL.Add('UPDATE &TABELA ');
+      FSQL.Append('UPDATE &TABELA ');
     tpcDelete:
-      FDataSet.SQL.Add('DELETE FROM &TABELA ');
+      FSQL.Append('DELETE FROM &TABELA ');
     tpcSelect:
-      FDataSet.SQL.Add('SELECT &CAMPO FROM &TABELA ');
+      FSQL.Append('SELECT &CAMPO FROM &TABELA ');
   end;
 end;
 
@@ -82,6 +85,7 @@ destructor TQuery.Destroy;
 begin
   FDataSet.Close;
   FreeAndNil(FDataSet);
+  FreeAndNil(FSQL);
   inherited;
 end;
 
@@ -107,10 +111,11 @@ end;
 procedure TQuery.exec;
 begin
   try
-    if FDataSet.SQL.Text.Trim.IsEmpty or not FDataSet.IsEmpty or
+    if getSQL().Trim.IsEmpty or not FDataSet.IsEmpty or
       (FTipo = tpcSelect) then
       Exit;
 
+    FDataSet.SQL.Text:= getSQL();
     FDataSet.ExecSQL;
     _LinhasAfetadas := FDataSet.RowsAffected;
   except
@@ -141,24 +146,25 @@ begin
 
   for item in campos do
   begin
-    if campos[pred(Length(campos))].Contains(item) then
+    if not campos[pred(Length(campos))].Contains(item) then
       _campos := _campos + item.Trim + ', '
     else
       _campos := _campos + item.Trim;
   end;
 
-  FDataSet.SQL.Text.Replace('&CAMPO', _campos.Trim);
+  FSQL.Replace('&CAMPO', _campos.Trim);
 end;
 
 function TQuery.open: iModelQuery;
 begin
   Result := Self;
 
-  if FDataSet.SQL.Text.Trim.IsEmpty or not FDataSet.IsEmpty or
+  if getSQL().Trim.IsEmpty or not FDataSet.IsEmpty or
     (FTipo <> tpcSelect) then
     Exit;
 
   try
+    FDataSet.SQL.Text:= getSQL();
     FDataSet.open();
   except
     raise Exception.Create('Erro ao executar a query');
@@ -172,20 +178,28 @@ begin
   if orderSQL.Trim.IsEmpty or not _TemWhere or _TemOrder or _TemGroupBy then
     Exit;
 
-  FDataSet.SQL.Add('ORDER BY');
-  FDataSet.SQL.Add(orderSQL.Trim);
+  FSQL
+    .AppendLine()
+    .Append('ORDER BY')
+    .AppendLine()
+    .Append(orderSQL.Trim);
+
   _TemOrder := true;
 end;
 
-function TQuery.ParamValue(const paramName: string; const value: Variant)
+function TQuery.ParamValue(const paramName: string; const value: TValue)
   : iModelQuery;
+var
+  valueStr: string;
 begin
   Result := Self;
 
-  if paramName.Trim.IsEmpty or VarIsClear(value) then
+  if paramName.Trim.IsEmpty or value.IsEmpty then
     Exit;
 
-  FDataSet.ParamByName(paramName.Trim).value := value;
+  ValueToStr(value, valueStr);
+
+  FSQL.Replace(paramName.Trim, valueStr);
 end;
 
 function TQuery.RowsAffected: integer;
@@ -204,19 +218,37 @@ begin
 
   if FDataSet.SQL.Text.Contains('SET') then
   begin
-    FDataSet.SQL.Add(Concat(', ', fieldName.Trim, ' = ', ':', paramName.Trim));
+    FSQL.Append(Concat(', ', fieldName.Trim, ' = ', ':', paramName.Trim));
   end
   else
   begin
-    FDataSet.SQL.Add('SET');
-    FDataSet.SQL.Add(Concat(fieldName.Trim, ' = ', ':', paramName.Trim));
+    FSQL.Append('SET');
+    FSQL.Append(Concat(fieldName.Trim, ' = ', ':', paramName.Trim));
   end;
 
 end;
 
-function TQuery.getSQL: string;
+function TQuery.getSQL(): string;
 begin
-  Result := FDataSet.SQL.Text;
+  Result := FSQL.ToString();
+end;
+
+procedure TQuery.ValueToStr(const value: TValue; var valueStr: string);
+begin
+  if value.IsDateTime then
+    valueStr := FormatDateTime('yyyy-mm-dd hh:nn:ss', value.AsType<TDateTime>).QuotedString;
+
+  if value.IsDate then
+    valueStr := FormatDateTime('yyyy-mm-dd', value.AsType<TDate>).QuotedString;
+
+  if value.IsTime then
+    valueStr := FormatDateTime('hh:nn:ss', value.AsType<TTime>).QuotedString;
+
+  if value.IsType<string> then
+    valueStr := value.ToString.QuotedString
+  else
+    valueStr:= value.ToString;
+
 end;
 
 function TQuery.GroupBy(const groupSQL: string): iModelQuery;
@@ -226,8 +258,12 @@ begin
   if groupSQL.Trim.IsEmpty or not _TemWhere or _TemOrder or _TemGroupBy then
     Exit;
 
-  FDataSet.SQL.Add('GROUP BY');
-  FDataSet.SQL.Add(groupSQL.Trim);
+  FSQL
+    .AppendLine()
+    .Append('GROUP BY')
+    .AppendLine()
+    .Append(groupSQL.Trim);
+
   _TemGroupBy := true;
 end;
 
@@ -239,9 +275,13 @@ begin
     _TemOrder or _TemGroupBy then
     Exit;
 
-  FDataSet.SQL.Add('JOIN');
-  FDataSet.SQL.Add(Concat(tableName.Trim, ' ON '));
-  FDataSet.SQL.Add(codicaoJoin.Trim);
+  FSQL
+    .AppendLine()
+    .Append('JOIN')
+    .AppendLine()
+    .Append(Concat(tableName.Trim, ' ON '))
+    .AppendLine()
+    .Append(codicaoJoin.Trim);
 end;
 
 class function TQuery.New(Conexao: TFDConnection;
@@ -251,25 +291,24 @@ begin
 end;
 
 function TQuery.Table(const tableNome: string): iModelQuery;
-var
-  I: Integer;
 begin
   Result := Self;
 
   if tableNome.Trim.IsEmpty then
     Exit;
 
-  FDataSet.SQL.Text.Replace('&TABELA', tableNome.Trim);
+  FSQL.Replace('&TABELA', tableNome.Trim);
 end;
 
-function TQuery.ToJson: string;
+function TQuery.ToJson(alias: string): string;
 begin
   Result := '';
 
   if FDataSet.IsEmpty then
     Exit;
 
-  Result := FDataSet.ToJson();
+  Result := FDataSet.ToJson(alias);
+
 end;
 
 function TQuery.Where(const whr: string): iModelQuery;
@@ -279,8 +318,11 @@ begin
     Exit;
 
   _TemWhere := true;
-  FDataSet.SQL.Add(' WHERE ');
-  FDataSet.SQL.Add(whr.Trim);
+  FSQL
+    .AppendLine()
+    .Append(' WHERE ')
+    .AppendLine()
+    .Append(whr.Trim);
 end;
 
 function TQuery.WhereAnd(const whr: string): iModelQuery;
@@ -289,8 +331,11 @@ begin
   if whr.Trim.IsEmpty or not _TemWhere or _TemOrder or _TemGroupBy then
     Exit;
 
-  FDataSet.SQL.Add(' AND ');
-  FDataSet.SQL.Add(whr.Trim);
+  FSQL
+    .AppendLine()
+    .Append(' AND ')
+    .AppendLine()
+    .Append(whr.Trim);
 end;
 
 function TQuery.WhereOR(const whr: string): iModelQuery;
@@ -299,8 +344,11 @@ begin
   if whr.Trim.IsEmpty or not _TemWhere or _TemOrder or _TemGroupBy then
     Exit;
 
-  FDataSet.SQL.Add(' OR ');
-  FDataSet.SQL.Add(whr.Trim);
+  FSQL
+    .AppendLine()
+    .Append(' OR ')
+    .AppendLine()
+    .Append(whr.Trim);
 end;
 
 end.

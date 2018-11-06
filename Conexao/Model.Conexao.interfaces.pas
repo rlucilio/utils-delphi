@@ -25,7 +25,7 @@ type
       function Where(const whr: string): iModelQuery;
       function WhereAnd(const whr: string): iModelQuery;
       function WhereOR(const whr: string): iModelQuery;
-      function ParamValue(const paramName: string; const value: Variant): IModelQuery;
+      function ParamValue(const paramName: string; const value: TValue): IModelQuery;
       function DoQuery(proc: TProcDS):IModelQuery; overload;
       function DoQuery:TDataSet; overload;
       function Join(const tableName, codicaoJoin :string): iModelQuery;
@@ -34,7 +34,7 @@ type
       function GroupBy(const groupSQL: string): iModelQuery;
       function OrderBy(const orderSQL: string): iModelQuery;
       function setField(const fieldName: string; const paramName: string): ImodelQuery;
-      function ToJson: string;
+      function ToJson(alias: string = ''): string;
       function getSQL: string;
    end;
 
