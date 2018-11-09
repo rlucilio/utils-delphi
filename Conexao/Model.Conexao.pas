@@ -6,8 +6,7 @@ uses Model.Conexao.interfaces, FireDAC.Stan.Intf,
    FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
    FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
    FireDAC.Stan.Async, FireDAC.Phys, FireDAC.FMXUI.Wait, Data.DB,
-   FireDAC.Comp.Client, FireDAC.Comp.UI, System.Classes,
-   Model.Conexao.Construtor;
+   FireDAC.Comp.Client, FireDAC.Comp.UI, System.Classes, ormbr.factory.interfaces;
 
 type
    TModelConexao = class(TInterfacedObject, iModelConexao)
@@ -15,9 +14,9 @@ type
       Fconexao: TFDConnection;
    protected
       constructor Create;
-      function criarBanco(script: TStrings): iModelConexao; virtual; abstract;
+      function Conn: IDBConnection;
+      function Conexao: TCustomConnection;
    public
-      property Conexao: TFDConnection read Fconexao write Fconexao;
       destructor Destroy; override;
    end;
 
@@ -25,11 +24,21 @@ implementation
 
 { TModelConexao }
 
+function TModelConexao.Conexao: TCustomConnection;
+begin
+
+end;
+
+function TModelConexao.Conn: IDBConnection;
+begin
+
+end;
+
 constructor TModelConexao.Create;
 begin
    inherited Create;
-   Conexao := TFDConnection.Create(nil);
-   Conexao.ResourceOptions.SilentMode:= true;
+   Fconexao := TFDConnection.Create(nil);
+   Fconexao.ResourceOptions.SilentMode:= true;
 end;
 
 destructor TModelConexao.Destroy;
