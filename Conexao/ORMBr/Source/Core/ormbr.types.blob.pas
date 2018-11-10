@@ -39,11 +39,11 @@ uses
   FMX.Graphics,
   {$ELSE}
   AnsiStrings,
-  Graphics,
-  GIFImg,
-  JPEG,
-  PngImage,
-  pnglang,
+  VCL.Graphics,
+  Vcl.Imaging.GIFImg,
+  Vcl.Imaging.JPEG,
+  Vcl.Imaging.PngImage,
+  Vcl.Imaging.pnglang,
   {$ENDIF}
   ZLib,
   ormbr.encddecd;
