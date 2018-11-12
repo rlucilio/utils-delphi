@@ -2,33 +2,32 @@ unit uConexao;
 
 interface
 
-uses Conexao.interfaces, FireDAC.Stan.Intf,
+uses uConexao.interfaces, FireDAC.Stan.Intf,
    FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
    FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
    FireDAC.Stan.Async, FireDAC.Phys, FireDAC.FMXUI.Wait, Data.DB,
-   FireDAC.Comp.Client, FireDAC.Comp.UI, System.Classes, ormbr.factory.interfaces;
+   FireDAC.Comp.Client, FireDAC.Comp.UI, System.Classes;
 
 type
    TConexao = class(TInterfacedObject, IConexao)
    private
       Fconexao: TFDConnection;
-      FconexaoDAO: IDBConnection;
    protected
-      constructor Create;
+      constructor Create; reintroduce;
    public
       destructor Destroy; override;
-      function Connection: TCustomConnection;
+      function Connection: TFDConnection;
       function SetConfigOfConnection(const params: TArray<string>): IConexao;
-      function GetConnectionORM(driverName: TDriverName): IDBConnection;
+
    end;
 
 implementation
 
 uses
-  ormbr.factory.firedac;
+  System.SysUtils;
 
 { TConexao }
-function TConexao.Connection: TCustomConnection;
+function TConexao.Connection: TFDConnection;
 begin
   result:= Fconexao;
 end;
@@ -46,16 +45,6 @@ begin
    inherited;
 end;
 
-function TConexao.GetConnectionORM(driverName: TDriverName): IDBConnection;
-begin
-  if Assigned(FconexaoDAO) then
-    result:= FconexaoDAO
-  else if Fconexao.Params.Count > 0 then
-  begin
-    FconexaoDAO:= TFactoryFireDAC.Create(Fconexao, driverName);
-    Result:= FconexaoDAO;
-  end;
-end;
 
 function TConexao.SetConfigOfConnection(
   const params: TArray<string>): IConexao;
@@ -67,6 +56,9 @@ begin
   begin
     Fconexao.Params.Add(item);
   end;
+
+  Fconexao.Connected:= true;
 end;
+
 
 end.
