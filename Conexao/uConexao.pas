@@ -17,7 +17,7 @@ type
    public
       destructor Destroy; override;
       function Connection: TFDConnection;
-      function SetConfigOfConnection(const params: TArray<string>): IConexao;
+      function SetConfigOfConnection(const params: string): IConexao;
 
    end;
 
@@ -46,17 +46,13 @@ begin
 end;
 
 
-function TConexao.SetConfigOfConnection(
-  const params: TArray<string>): IConexao;
+function TConexao.SetConfigOfConnection(const params: string): IConexao;
 var
   item: string;
 begin
   result:= self;
-  for item in params do
-  begin
-    Fconexao.Params.Add(item);
-  end;
 
+  Fconexao.ConnectionString:=params;
   Fconexao.Connected:= true;
 end;
 
