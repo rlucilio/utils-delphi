@@ -8,8 +8,7 @@ uses
    System.Rtti,
    System.Generics.Collections,
    Data.DB,
-   FireDAC.Comp.Client,
-   ormbr.container.objectset.interfaces;
+   FireDAC.Comp.Client;
 
 type
    TProcDS = reference to procedure(dataSet: TDataSet);
@@ -25,6 +24,7 @@ type
     function GetConexao: IConexao;
     procedure SetConexao(const Value: IConexao);
     property Conexao: IConexao read GetConexao write SetConexao;
+    function Ref: IDefCon;
    end;
 
    IConexaoORM= interface
