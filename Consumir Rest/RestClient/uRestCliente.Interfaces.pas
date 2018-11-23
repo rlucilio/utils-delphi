@@ -3,7 +3,9 @@ unit uRestCliente.Interfaces;
 interface
 
 uses
-  System.Classes, REST.Types;
+  System.Classes,
+  REST.Types,
+  System.JSON;
 
 type
   IRestClient = interface
@@ -19,7 +21,8 @@ type
        opcoes: TRESTRequestParameterOptions = [];
        tipo: TRESTContentType = ctNone): IRestClient;
 
-    function GetResponse(const contentType: string): string;
+    function GetResponse(const contentType: string): string; overload;
+    function GetResponse(): TJSONObject; overload;
   end;
 
 implementation

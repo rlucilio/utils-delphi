@@ -8,7 +8,8 @@ uses
   REST.Authenticator.Basic,
   System.Classes,
   REST.Types,
-  IPPeerClient;
+  IPPeerClient,
+  System.Json;
 
 type
   TRestCliente = class(TInterfacedObject, IRestClient)
@@ -40,8 +41,8 @@ type
        opcoes: TRESTRequestParameterOptions = [];
        tipo: TRESTContentType = ctNone): IRestClient;
 
-    function GetResponse(const contentType: string = ''): string;
-
+    function GetResponse(const contentType: string = ''): string; overload;
+    function GetResponse(): TJSONObject; overload;
     { TODO : Adicionar método async }
   end;
 
@@ -49,7 +50,8 @@ implementation
 
 uses
   System.SysUtils,
-  System.Variants;
+  System.Variants,
+  ormbr.json.utils;
 
 { TRestCliente }
 
@@ -145,7 +147,18 @@ begin
   inherited;
 end;
 
-function TRestCliente.GetResponse(const contentType: string): string;
+function TRestCliente.GetResponse: TJSONObject;
+begin
+    try
+      FRequest.Execute();
+      FRequest.Response.ContentType:= 'application/json';
+      Result:= TORMBrJSONUtil.JSONStringToJSONObject(FRequest.Response.Content);
+    except
+      result:= TJSONObject.Create();
+    end;
+end;
+
+function TRestCliente.GetResponse(const contentType: string = ''): string;
 begin
   try
     FRequest.Execute();

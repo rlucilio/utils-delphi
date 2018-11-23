@@ -2,8 +2,13 @@ unit uConexao.SQLITE;
 
 interface
 
-uses uConexao, uConexao.interfaces, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
-  FireDAC.Stan.ExprFuncs;
+uses
+  uConexao,
+  uConexao.interfaces,
+  FireDAC.Phys.SQLite,
+  FireDAC.Phys.SQLiteDef,
+  FireDAC.Stan.ExprFuncs,
+  ormbr.dml.generator.sqlite;
 
 type
   TParamsSQLite = record
@@ -38,10 +43,10 @@ begin
    _parametros:= TStringBuilder.Create;
    try
     _parametros
-      .Append('DriverID=SQLite').Append(';')
-      .Append('Database=')      .Append(parametros.Database) .Append(';')
-      .Append('User_Name')      .Append(parametros.User_Name).Append(';')
-      .Append('Password')       .Append(parametros.Password) .Append(';');
+      .Append('DriverID=SQLite') .Append(';')
+      .Append('Database=')       .Append(parametros.Database) .Append(';')
+      .Append('User_Name=')      .Append(parametros.User_Name).Append(';')
+      .Append('Password=')       .Append(parametros.Password) .Append(';');
 
     if FileExists(parametros.Database) then
     begin
@@ -50,12 +55,12 @@ begin
 
     if parametros.Exclusive then
     begin
-      _parametros.Append('LockingMode=Normal');
+      _parametros.Append('LockingMode=Normal;');
     end;
 
     if parametros.Encrypt then
     begin
-      _parametros.Append('Encrypt=aes-ecb-256');
+      _parametros.Append('Encrypt=aes-ecb-256;');
     end;
 
      SetConfigOfConnection(_parametros.ToString);
