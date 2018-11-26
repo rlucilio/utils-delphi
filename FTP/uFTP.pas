@@ -37,7 +37,8 @@ type
     function Update(const arquivo: TStream): IFTP;overload;
     function Download(const arquivo: string; const local: string): IFTP; overload;
     function Download(const arquivo: string; const arquivoBinario: TStream): IFTP; overload;
-
+    
+    property IdFtp: TIdFTP read FIndyFTP write FIndyFTP;
   end;
 
 implementation
