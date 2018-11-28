@@ -68,7 +68,7 @@ begin
 
   ForceDirectories(Concat(TPath.GetDocumentsPath, '\SICLOP\', nomeDoPrograma));
   nomeArquivo := Concat(TPath.GetDocumentsPath, '\SICLOP\', nomeDoPrograma, '\',
-    nomeDoPrograma, '.log');
+    nomeDoPrograma, 'Erro.log');
 
   AssignFile(txtFile, nomeArquivo);
   try
@@ -106,7 +106,7 @@ begin
     tipo := contexto.GetType(Sender.ClassType);
 
     msgErro
-    .Append('===Informações Extra===').AppendLine()
+    .Append('===Informaï¿½ï¿½es Extra===').AppendLine()
     .Append('Data: ').Append(FormatDateTime('c', Now)).AppendLine()
     .Append('Programa: ').Append(ExtractFileName(ParamStr(0))).AppendLine()
     .Append('Nome Class: ').Append(Sender.ClassName).AppendLine()
