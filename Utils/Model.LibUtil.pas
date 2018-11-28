@@ -11,7 +11,8 @@ function getIP: string;
 
 function temInternet: Boolean;
 
-procedure iniciaComWindows(nomePrograma: string);
+procedure iniciaComWindows(nomePrograma: string); overload;
+procedure iniciaComWindows(nomePrograma: string; localPrograma: string = ''); overload;
 
 function compactarArquivo(arquivos: TArray<string>;
   nomeArquivoZip: string): string;
@@ -33,6 +34,8 @@ procedure AbrePastaDeLogs();
 
 function getListaPastas(dir: string): TArray<string>;
 
+function GetVersaoPrograma(const programa: string): string;
+
 implementation
 
 uses
@@ -40,6 +43,49 @@ uses
 {$ENDIF},
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
   Model.PowerCMD, System.Generics.Collections;
+
+function GetVersaoPrograma(const programa: string): string;
+var
+  size, hand: DWORD;
+  buffer: TBytes;
+  FixedPtr: PVSFixedFileInfo;
+begin
+  result:= '';
+  size := GetFileVersionInfoSize(PChar(programa), hand);
+
+  if size = 0 then
+    RaiseLastOSError;
+
+  SetLength(buffer, size);
+
+  if not GetFileVersionInfo(PChar(programa), Hand, size, buffer) then
+    RaiseLastOSError;
+
+  if not VerQueryValue(buffer, '\', Pointer(FixedPtr), size) then
+    RaiseLastOSError;
+
+  Result := Format('%d.%d.%d.%d',
+    [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
+     LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
+     LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
+     LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
+end;
+
+procedure iniciaComWindows(nomePrograma: string; localPrograma: string = '');
+var
+  reg: TRegIniFile;
+  sKey: string;
+begin
+  try
+    sKey := '';
+    reg := TRegIniFile.Create('');
+    reg.RootKey := HKEY_LOCAL_MACHINE;
+    reg.WriteString('Software\Microsoft\Windows\CurrentVersion\Run' + sKey + #0,
+      nomePrograma, localPrograma);
+  finally
+    FreeAndNil(reg);
+  end;
+end;
 
 
 function DescompactarZip(const arquivoZip, localSalvamento: string): TArray<string>;
@@ -281,20 +327,9 @@ begin
 end;
 
 procedure iniciaComWindows(nomePrograma: string);
-var
-  reg: TRegIniFile;
-  sKey: string;
 begin
-  try
-    sKey := '';
-    reg := TRegIniFile.Create('');
-    reg.RootKey := HKEY_LOCAL_MACHINE;
-    reg.WriteString('Software\Microsoft\Windows\CurrentVersion\Run' + sKey + #0,
-      nomePrograma, ExtractFilePath(ParamStr(0)) +
-      ExtractFileName(ParamStr(0)));
-  finally
-    FreeAndNil(reg);
-  end;
+  iniciaComWindows(nomePrograma,
+   ExtractFilePath(ParamStr(0)) + ExtractFileName(ParamStr(0)));
 end;
 
 function getIP: string;
