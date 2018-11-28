@@ -16,8 +16,8 @@ type
       Texto: TIdText;
       FemailRemetente: string;
       FnomeRemetente: string;
-      constructor Create(emailRemetente, nomeRemetente: string);
    public
+      constructor Create(emailRemetente, nomeRemetente: string);
       class function New(emailRemetente, nomeRemetente: string): iModelEmail;
       destructor Destroy; override;
       function setServer(host, senha: string): iModelEmail;
@@ -77,14 +77,14 @@ begin
    Mensagem := TIdMessage.Create(nil);
 
    if nomeRemetente.IsEmpty then
-      raise Exception.Create('Nome do remetende é inválido')
+      raise Exception.Create('Nome do remetende ï¿½ invï¿½lido')
    else
       FnomeRemetente := nomeRemetente;
 
    if validaEmail(emailRemetente) then
       FemailRemetente := emailRemetente
    else
-      raise Exception.Create('Email do remetende é inválido');
+      raise Exception.Create('Email do remetende ï¿½ invï¿½lido');
 end;
 
 destructor TModelEmail.Destroy;
