@@ -9,12 +9,16 @@ type
   TLog = class
   private
     FArquivoDeLog: string;
+    FLog: string;
     procedure ApagarArquivoAntigo();
     procedure gravaLinha(const linha: string);
     constructor Create;
   public
     destructor Destroy; override;
+
     property ArquivoDeLog: string read FArquivoDeLog;
+    property Log:          string read FLog;
+
     procedure DoObj(const obj: TObject;const msg: string);
     procedure DoMsg(const msg: string);
   end;
@@ -25,7 +29,9 @@ var
 implementation
 
 uses
-  Obj.Helper, System.TypInfo;
+  Obj.Helper, 
+  System.TypInfo,
+  System.IOUtils;
 
 { TLog }
 
@@ -52,6 +58,7 @@ begin
   nomeDoPrograma:= ChangeFileExt(ExtractFileName(ParamStr(0)), '');
 
   FArquivoDeLog:= Concat(ExtractFilePath(ParamStr(0)), nomeDoPrograma, '.log');
+  FLog:= Concat(TPath.GetDocumentsPath,'\SICLOP\',nomeDoPrograma,'\',nomeDoPrograma,'.log');
 
   ApagarArquivoAntigo();
 end;
@@ -135,11 +142,23 @@ begin
 
   AssignFile(txtFile, ArquivoDeLog);
   try  
-
     {$I-}
       Append(txtFile);
-    {$I+}    
+    {$I+}       
+    if IOResult <> 0 then
+      Rewrite(txtFile);
+
+    Writeln(txtFile, linhaComDataHora);
     
+  finally
+    CloseFile(txtFile);
+  end;
+
+  AssignFile(txtFile, Log);
+  try  
+    {$I-}
+      Append(txtFile);
+    {$I+}       
     if IOResult <> 0 then
       Rewrite(txtFile);
 
