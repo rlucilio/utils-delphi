@@ -1,4 +1,4 @@
-unit uConexao.SQLITE;
+﻿unit uConexao.SQLITE;
 
 interface
 
@@ -11,19 +11,19 @@ uses
   ormbr.dml.generator.sqlite;
 
 type
-  TParamsSQLite = record
-    Database : string;
-    User_Name: string;
-    Password : string;
-    Exclusive: Boolean;
-    Encrypt  : Boolean;
-  end;
+   TParamsSQLite = record
+     Database: string;
+     User_Name: string;
+     Password: string;
+     Exclusive: Boolean;
+     Encrypt: Boolean;
+   end;
 
    TConexaoSQLITE = class(TConexao)
    private
    public
-      constructor Create(const parametros: TParamsSQLite);
-      class function New(const parametros: TParamsSQLite): iConexao;
+      constructor Create(const parametros:TParamsSQLite);
+      class function New(const parametros:TParamsSQLite): iConexao;
       destructor Destroy; override;
    end;
 
@@ -34,7 +34,7 @@ uses
 
 { TConexaoSQLITE }
 
-constructor TConexaoSQLITE.Create(const parametros: TParamsSQLite);
+constructor TConexaoSQLITE.Create(const parametros:TParamsSQLite);
 var
   _parametros: TStringBuilder;
 begin
@@ -42,20 +42,17 @@ begin
 
    _parametros:= TStringBuilder.Create;
    try
-    _parametros
-      .Append('DriverID=SQLite') .Append(';')
-      .Append('Database=')       .Append(parametros.Database) .Append(';')
-      .Append('User_Name=')      .Append(parametros.User_Name).Append(';')
-      .Append('Password=')       .Append(parametros.Password) .Append(';');
 
-    if FileExists(parametros.Database) then
-    begin
-      _parametros.Append('OpenMode=ReadWrite;');
-    end;
+
+    _parametros
+      .Append('DriverID=') .Append('SQLite')            .Append(';')
+      .Append('Database=') .Append(parametros.Database) .Append(';')
+      .Append('User_Name=').Append(parametros.User_Name).Append(';')
+      .Append('Password=') .Append(parametros.Password) .Append(';');
 
     if parametros.Exclusive then
     begin
-      _parametros.Append('LockingMode=Normal;');
+      _parametros.Append('LockingMode=Normal');
     end;
 
     if parametros.Encrypt then
@@ -63,11 +60,15 @@ begin
       _parametros.Append('Encrypt=aes-ecb-256;');
     end;
 
-     SetConfigOfConnection(_parametros.ToString);
-   finally
-    _parametros.Free;
-   end;
+    if not FileExists(parametros.Database) then
+    begin
+      _parametros.Append('OpenMode=ReadWrite;');
+    end;
 
+    SetConfigOfConnection(_parametros.ToString);
+   finally
+    _parametros.Free
+   end;
 end;
 
 
@@ -77,11 +78,10 @@ begin
   inherited;
 end;
 
-class function TConexaoSQLITE.New(const parametros: TParamsSQLite): iConexao;
+class function TConexaoSQLITE.New(
+  const parametros: TParamsSQLite): iConexao;
 begin
-   Result:= Self.Create(parametros);
-
+  result:= self.Create(parametros);
 end;
 
 end.
-
