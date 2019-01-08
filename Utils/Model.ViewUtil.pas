@@ -9,11 +9,22 @@ function ResultadoDaPergunta(titulo, pergunta: string): string;
 function SelecionarCaminhoDoArquivo(filtro, titulo: string): string;
 procedure animacaoPulsar(componenteVisual: TFmxObject; TamanhoOriginal: double);
 function selecionarImpressora: string;
+procedure MostrarMsg(const msg: string);
 
 implementation
 
 uses
   FMX.Dialogs, System.SysUtils, FMX.Platform, FMX.Controls, FMX.Ani;
+
+procedure MostrarMsg(const msg: string);
+var
+  dialog: IFMXDialogServiceSync;
+begin
+   TPlatformServices.Current.SupportsPlatformService(IFMXDialogServiceSync,
+    IInterface(dialog));
+
+  dialog.ShowMessageSync(msg);
+end;
 
 function SelecionarCaminhoDoArquivo(filtro, titulo: string): string;
 var

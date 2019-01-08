@@ -2,7 +2,11 @@ unit PersistenciaConfiguracao.Ini;
 
 interface
 
-uses PersistenciaConfiguracao.Interfaces, System.SysUtils, System.iniFiles, System.Rtti,
+uses
+  PersistenciaConfiguracao.Interfaces,
+  System.SysUtils,
+  System.iniFiles,
+  System.Rtti,
   System.Generics.Collections;
 
 type
@@ -12,6 +16,9 @@ type
     arquioIni: TIniFile;
     _resultado: TDictionary<string, string>;
     constructor Create;
+    procedure PropListStrToStr(obj: TObject; propriedade: TRttiProperty);
+    procedure PropToStr(obj: TObject; propriedade: TRttiProperty);
+    procedure PropTStringsToStr(obj: TObject; propriedade: TRttiProperty);
   public
     class function New: iSalvaCarregaConfiguracao;
     destructor Destroy; override;
@@ -24,7 +31,8 @@ type
 implementation
 
 uses
-  System.Variants;
+  System.Variants,
+  System.Classes;
 
 { TPersistenciaIni }
 
@@ -76,6 +84,47 @@ begin
   Result:= _resultado;
 end;
 
+
+procedure TPersistenciaIni.PropTStringsToStr(obj: TObject; propriedade: TRttiProperty);
+var
+  valor: string;
+  lista: TStringList;
+  item: string;
+begin
+  valor := '';
+  propriedade.GetValue(obj).TryAsType<TStringList>(lista);
+
+  lista.Delimiter:= '|';
+
+  arquioIni.WriteString(obj.ClassName, propriedade.Name, lista.Text);
+end;
+
+procedure TPersistenciaIni.PropToStr(obj: TObject; propriedade: TRttiProperty);
+begin
+  if (propriedade.GetValue(obj).IsOrdinal) and not ((propriedade.GetValue(obj).IsType<Integer>) or (propriedade.GetValue(obj).IsType<char>) or (propriedade.GetValue(obj).IsType<Boolean>)) then
+  begin
+    arquioIni.WriteInteger(obj.ClassName, propriedade.Name, Integer(propriedade.GetValue(obj).AsOrdinal));
+  end
+  else
+    arquioIni.WriteString(obj.ClassName, propriedade.Name, VarToStr(propriedade.GetValue(obj).AsVariant));
+end;
+
+procedure TPersistenciaIni.PropListStrToStr(obj: TObject; propriedade: TRttiProperty);
+var
+  valor: string;
+  lista: TList<string>;
+  item: string;
+begin
+  valor := '';
+  propriedade.GetValue(obj).TryAsType<TList<string>>(lista);
+
+  for item in lista do
+  begin
+    valor := valor + item + '|';
+  end;
+
+  arquioIni.WriteString(obj.ClassName, propriedade.Name, valor);
+end;
 class function TPersistenciaIni.New: iSalvaCarregaConfiguracao;
 begin
   result := self.Create;
@@ -86,9 +135,6 @@ var
   propriedade: TRttiProperty;
   contexto: TRttiContext;
   tipo: TRttiType;
-  lista: TList<String>;
-  item: string;
-  valor: string;
 begin
   result := self;
   contexto := TRttiContext.Create;
@@ -96,31 +142,14 @@ begin
     tipo := contexto.GetType(obj.ClassInfo);
     for propriedade in tipo.GetProperties do
     begin
-      if propriedade.GetValue(obj).IsInstanceOf(TList<String>) then
-      begin
-        valor := '';
-        propriedade.GetValue(obj).TryAsType < TList < String >> (lista);
-        for item in lista do
-        begin
-          valor := valor + item + '|';
-        end;
-        arquioIni.WriteString(obj.ClassName, propriedade.Name, valor);
-      end
-      else
-      begin
 
-        if (propriedade.GetValue(obj).IsOrdinal) and
-          not((propriedade.GetValue(obj).IsType<Integer>()) or
-          (propriedade.GetValue(obj).IsType<char>()) or
-          (propriedade.GetValue(obj).IsType<Boolean>())) then
-        begin
-          arquioIni.WriteInteger(obj.ClassName, propriedade.Name,
-            Integer(propriedade.GetValue(obj).AsOrdinal));
-        end
-        else
-          arquioIni.WriteString(obj.ClassName, propriedade.Name,
-            VarToStr(propriedade.GetValue(obj).AsVariant));
-      end;
+      if propriedade.GetValue(obj).IsInstanceOf(TStringList) then
+        PropTStringsToStr(obj, propriedade)
+      else if propriedade.GetValue(obj).IsInstanceOf(TList<String>) then
+        PropListStrToStr(obj, propriedade)
+      else
+        PropToStr(obj, propriedade);
+
     end;
 
   finally

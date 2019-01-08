@@ -12,7 +12,7 @@ function getIP: string;
 function temInternet: Boolean;
 
 procedure iniciaComWindows(nomePrograma: string); overload;
-procedure iniciaComWindows(nomePrograma: string; localPrograma: string = ''); overload;
+procedure iniciaComWindows(nomePrograma: string; localPrograma: string); overload;
 
 function compactarArquivo(arquivos: TArray<string>;
   nomeArquivoZip: string): string;
@@ -42,7 +42,7 @@ uses
   System.SysUtils, Winapi.Windows, {$IFDEF FMX} FMX.Forms, {$ELSE} VCL.Forms
 {$ENDIF},
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
-  Model.PowerCMD, System.Generics.Collections;
+  Model.PowerCMD, System.Generics.Collections, System.Types;
 
 function GetVersaoPrograma(const programa: string): string;
 var
@@ -71,7 +71,7 @@ begin
      LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
 end;
 
-procedure iniciaComWindows(nomePrograma: string; localPrograma: string = '');
+procedure iniciaComWindows(nomePrograma: string; localPrograma: string);
 var
   reg: TRegIniFile;
   sKey: string;
@@ -329,7 +329,7 @@ end;
 procedure iniciaComWindows(nomePrograma: string);
 begin
   iniciaComWindows(nomePrograma,
-   ExtractFilePath(ParamStr(0)) + ExtractFileName(ParamStr(0)));
+   ParamStr(0));
 end;
 
 function getIP: string;

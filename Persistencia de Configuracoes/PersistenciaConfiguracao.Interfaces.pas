@@ -15,9 +15,9 @@ type
 
   iConfiguravel = interface
     ['{49320F75-46E3-4495-BF28-6E91157E9F40}']
-    procedure salvar;
-    procedure carregar;
-    function Configurado: boolean;
+    procedure Salvar;
+    procedure Carregar;
+    function GetConfigurado: boolean;
   end;
 
 implementation

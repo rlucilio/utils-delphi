@@ -39,31 +39,38 @@ var
   _parametros: TStringBuilder;
 begin
    inherited Create();
-
    _parametros:= TStringBuilder.Create;
    try
 
 
     _parametros
       .Append('DriverID=') .Append('SQLite')            .Append(';')
-      .Append('Database=') .Append(parametros.Database) .Append(';')
-      .Append('User_Name=').Append(parametros.User_Name).Append(';')
-      .Append('Password=') .Append(parametros.Password) .Append(';');
+      .Append('Database=') .Append(parametros.Database) .Append(';');
+
+    if not parametros.User_Name.IsEmpty then
+    begin
+      _parametros.Append('User_Name=').Append(parametros.User_Name).Append(';')
+    end;
+
+    if not parametros.Password.IsEmpty then
+    begin
+      _parametros.Append('Password=').Append(parametros.Password) .Append(';')
+    end;
 
     if parametros.Exclusive then
-    begin
-      _parametros.Append('LockingMode=Normal');
-    end;
+      _parametros.Append('LockingMode=Exclusive;')
+    else
+      _parametros.Append('LockingMode=Normal;');
 
     if parametros.Encrypt then
-    begin
-      _parametros.Append('Encrypt=aes-ecb-256;');
-    end;
+      _parametros.Append('Encrypt=aes-ecb-256;')
+    else
+      _parametros.Append('Encrypt=No;');
 
-    if not FileExists(parametros.Database) then
-    begin
-      _parametros.Append('OpenMode=ReadWrite;');
-    end;
+    if FileExists(parametros.Database) then
+      _parametros.Append('OpenMode=ReadWrite;')
+    else
+      _parametros.Append('OpenMode=CreateUTF8;');
 
     SetConfigOfConnection(_parametros.ToString);
    finally
