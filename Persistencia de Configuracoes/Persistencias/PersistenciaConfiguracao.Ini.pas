@@ -89,14 +89,17 @@ procedure TPersistenciaIni.PropTStringsToStr(obj: TObject; propriedade: TRttiPro
 var
   valor: string;
   lista: TStringList;
-  item: string;
+  it: string;
 begin
   valor := '';
   propriedade.GetValue(obj).TryAsType<TStringList>(lista);
 
-  lista.Delimiter:= '|';
+  for it in lista do
+  begin
+    valor:= valor + it + '|';
+  end;
 
-  arquioIni.WriteString(obj.ClassName, propriedade.Name, lista.Text);
+  arquioIni.WriteString(obj.ClassName, propriedade.Name, valor);
 end;
 
 procedure TPersistenciaIni.PropToStr(obj: TObject; propriedade: TRttiProperty);
@@ -142,6 +145,8 @@ begin
     tipo := contexto.GetType(obj.ClassInfo);
     for propriedade in tipo.GetProperties do
     begin
+      if propriedade.Name.Equals('RefCount') or propriedade.Name.Contains('On') then
+       Continue;
 
       if propriedade.GetValue(obj).IsInstanceOf(TStringList) then
         PropTStringsToStr(obj, propriedade)
