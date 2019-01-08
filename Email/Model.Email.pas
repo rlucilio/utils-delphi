@@ -1,4 +1,4 @@
-unit Model.Email;
+﻿unit Model.Email;
 
 interface
 
@@ -57,8 +57,11 @@ begin
       SMTP.IOHandler := SSLIOHandlerSocket;
       SMTP.UseTLS := utUseImplicitTLS;
       SMTP.AuthType := satDefault;
-   end;
-   SMTP.Port := 587;
+      SMTP.Port := 465;
+   end
+   else
+      SMTP.Port := 587;
+   
    SMTP.host := host;
    SMTP.Username := emailRemetente;
    SMTP.Password := senha;
@@ -77,14 +80,14 @@ begin
    Mensagem := TIdMessage.Create(nil);
 
    if nomeRemetente.IsEmpty then
-      raise Exception.Create('Nome do remetende � inv�lido')
+      raise Exception.Create('Nome do remetende é inválido')
    else
       FnomeRemetente := nomeRemetente;
 
    if validaEmail(emailRemetente) then
       FemailRemetente := emailRemetente
    else
-      raise Exception.Create('Email do remetende � inv�lido');
+      raise Exception.Create('Email do remetende é inválido');
 end;
 
 destructor TModelEmail.Destroy;

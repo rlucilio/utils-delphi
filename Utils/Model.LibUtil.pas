@@ -285,15 +285,12 @@ begin
   Zip := TZipFile.Create;
   try
     Result := ExtractFilePath(ParamStr(0)) + nomeArquivoZip + '.zip';
-    if Length(arquivos) > 0 then
-    begin
       Zip.open(Result, zmWrite);
       for item in arquivos do
       begin
         if FileExists(item) then
           Zip.Add(item);
       end;
-    end;
   finally
     FreeAndNil(Zip);
   end;
