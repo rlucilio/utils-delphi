@@ -10,25 +10,8 @@ uses
 type
   TRelatorioMatricial = class(TInterfacedObject, iRelatorio)
   private
-    FArquivoTxt: TStrings;
-    procedure GerarImpressao();
-    procedure AddLinhaColunas(memo: Tstrings; colunas: TArray<string>; CaracteresPorColuna: TArray<integer>);
-    procedure addLinha(memo: Tstrings; linhas: TArray<string>; CaracteresPorColuna: integer);
-    const
-      DELAY                           = #27+'X';
-      AVANCAR_BOBINA                  = #13;
-      ESPACAMENTO                     = #27+'M';
-      CONDESADO_ATIVA                 = #15;
-      CONDESADO_DESATIVA              = #18;
-      EXPANDIR_ATIVA                  = #27+'W'+'1';
-      EXPANDIR_DESATIVA               = #27+'W'+'0';
-      SOBRESCRITO_ATIVA               = #27+'S0';
-      SUBESCRITO_ATIVA                = #27+'S1';
-      SOBRESCRITO_SUBESCRITO_DESATIVA = #27+'T';
-      SUBLINHADO_ATIVA                = #27+'-'+'1';
-      SUBLINHADO_DESATIVA             = #27+'-'+'0';
-      NEGRITO_ATIVA                   = #27+'E';
-      NEGRITO_DESATIVA                = #27+'F';
+    FArquivoTxt: TStringList;
+    procedure Modificado(Sender: TObject);
   public
     constructor Create();
     destructor Destroy; override;
@@ -44,263 +27,114 @@ type
 implementation
 
 uses
-  System.SysUtils,
   Model.LibUtil,
-  ACBrUtil;
+  System.SysUtils,
+  uRelatorio.Linhas;
 
 { TRelatorioMatricial }
 
 function TRelatorioMatricial.addInformacaoImportante(
   informacaoImportante: IInformacaoImportante): iRelatorio;
 var
-  linhas: TStringBuilder;
-
+  tratamentoLinhas: ITratamentoLinhas;
+  titulo, informacoes: TArray<string>;
 begin
   Result:= self;
-
+  tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoImportante) then
   begin
-    try
-      if not(informacaoImportante.Titulo.IsEmpty) or
-         (informacaoImportante.Informacoes.Count > 0) then
-        linhas:= TStringBuilder.Create();
+    if not(informacaoImportante.Titulo.IsEmpty) then
+    begin
+      titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.Titulo, 24);
+      titulo:= tratamentoLinhas.AlinharLinhas(titulo, 24, atCenter);
 
-      if not(informacaoImportante.Titulo.IsEmpty) then
-
-    finally
-      FreeAndNil(linhas);
+      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt, EXPANDIR_ATIVA);
     end;
 
+    if informacaoImportante.Informacoes.Count > 0 then
+    begin
+      informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, 48);
+      informacoes:= tratamentoLinhas.AlinharLinhas(informacoes, 28, atLeft);
+      tratamentoLinhas.AddLinhas(informacoes, FArquivoTxt);
+    end;
   end;
-
 end;
-
-//var
-//  band: TRLBand;
-//  memoTitulo, memoInformacao: TRLMemo;
-//begin
-//  result := self;
-//
-//  if not(informacaoImportante.titulo.IsEmpty) or
-//    (informacaoImportante.informacoes.Count > 0) then
-//  begin
-//    band := TRLBand.Create(fRelatorio);
-//    band.Parent := fRelatorio;
-//    band.Margins.BottomMargin := 1;
-//    band.AutoSize := true;
-//    band.BandType := btHeader;
-//  end;
-//
-//  if not(informacaoImportante.titulo.IsEmpty) then
-//  begin
-//    memoTitulo := TRLMemo.Create(band);
-//    memoTitulo.Parent := band;
-//    memoTitulo.Align := faTop;
-//    memoTitulo.Alignment := taJustify;
-//    memoTitulo.Behavior := [beSiteExpander];
-//    memoTitulo.Font.Charset := DEFAULT_CHARSET;
-//    memoTitulo.Font.Color := $000000;
-//    memoTitulo.Font.Size := informacaoImportante.tamanhaoTitulo;
-//    memoTitulo.Font.Name := 'Arial';
-//    memoTitulo.Font.Style := [TFontStyle.fsBold];
-//    memoTitulo.Layout := tlCenter;
-//
-//    addLinha(memoTitulo.Lines, [informacaoImportante.titulo],
-//      informacaoImportante.qtdMaxCaracteres);
-//  end;
-//
-//  if (informacaoImportante.informacoes.Count > 0) then
-//  begin
-//    memoInformacao := TRLMemo.Create(band);
-//    memoInformacao.Parent := band;
-//    memoInformacao.Align := faTop;
-//    memoInformacao.Alignment := taJustify;
-//    memoInformacao.Behavior := [beSiteExpander];
-//    memoInformacao.Font.Charset := DEFAULT_CHARSET;
-//    memoInformacao.Font.Color := $000000;
-//    memoInformacao.Font.Size := informacaoImportante.tamanhoInformacoes;
-//    memoInformacao.Font.Name := 'Arial';
-//    memoInformacao.Font.Style := [TFontStyle.fsBold];
-//    memoInformacao.Layout := tlCenter;
-//
-//    addLinha(memoInformacao.Lines, informacaoImportante.informacoes.ToArray,
-//      informacaoImportante.qtdMaxCaracteres);
-//  end;
-//
-//end;
-
 
 function TRelatorioMatricial.addInformacaoRodape(
   informacaoRodape: IInformacaoRodape): iRelatorio;
+var
+  tratamentoLinhas: ITratamentoLinhas;
+  linhas: TArray<string>;
 begin
   Result:= self;
+  tratamentoLinhas:= TTratamentoLinhas.New();
+  if Assigned(informacaoRodape) then
+  begin
+    if informacaoRodape.Linhas.Count > 0 then
+    begin
+      linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, 60);
+      linhas:= tratamentoLinhas.AlinharLinhas(linhas, 60, atCenter);
+      tratamentoLinhas.AddLinhas(linhas, FArquivoTxt, CONDESADO_ATIVA);
+    end;
+  end;
 end;
 
 function TRelatorioMatricial.addInformacaoSimples(
   informacaoSimples: IInformacaoSimples): iRelatorio;
+var
+  tratamentoLinhas: ITratamentoLinhas;
+  titulo, informativo: TArray<string>;
 begin
+  Result:= self;
+  tratamentoLinhas:= TTratamentoLinhas.New();
+  if Assigned(informacaoSimples) then
+  begin
+    if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
+    begin
+      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 24);
+      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, 24);
+      tratamentoLinhas.AddLinhasKeyValue(titulo, informativo, 48, FArquivoTxt, NEGRITO_ATIVA);
+      Exit(self);
+    end;
+
+    if not(informacaoSimples.Titulo.IsEmpty) then
+    begin
+      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
+      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt, NEGRITO_ATIVA);
+      Exit(self);
+    end;
+
+    if not(informacaoSimples.Informativo.IsEmpty) then
+    begin
+      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
+      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt);
+      Exit(self);
+    end;
+  end;
   Result:= self;
 end;
 
 function TRelatorioMatricial.addInformacoesLista(
   informacaoLista: IInformacaoLista): iRelatorio;
+var
+  tratamentoLinhas: ITratamentoLinhas;
 begin
   Result:= self;
-end;
-
-procedure TRelatorioMatricial.addLinha(memo: Tstrings;
-  linhas: TArray<string>; CaracteresPorColuna: integer);
-var
-  linhaAjustada: TStringList;
-  item, linha: string;
-  I: integer;
-  item2: string;
-begin
-  try
-    linhaAjustada := TStringList.Create;
-    for item in linhas do
-    begin
-      linha := AjustaLinhas(item, CaracteresPorColuna, 1000, true);
-
-      addDelimitador(linha, #10, linhaAjustada);
-
-      for I := 0 to linhaAjustada.Count - 1 do
-      begin
-        if (linhaAjustada[I] = sLineBreak) or not(trim(linhaAjustada[I]).IsEmpty)
-        then
-        begin
-
-          for item2 in memo do
-          begin
-            if trim(linhaAjustada[I]).contains(trim(item2)) then
-            begin
-              linhaAjustada[I] := '';
-              break;
-            end;
-
-          end;
-
-          if fRelatorio.PageSetup.PaperWidth <> 145 then
-          begin
-
-            if not(linhaAjustada[I].IsEmpty) then
-              if linhaAjustada[I].contains('|') then
-              begin
-                memo.Add(' ');
-              end
-              else
-                memo.Add(trim(linhaAjustada[I]));
-          end
-          else
-            memo.Add(trim(linhaAjustada[I]));
-        end;
-      end;
-
-    end;
-  finally
-    FreeAndNil(linhaAjustada);
+  tratamentoLinhas:= TTratamentoLinhas.New();
+  if Assigned(informacaoLista) then
+  begin
+    if (informacaoLista.Colunas.Count > 0) and (informacaoLista.QtdMaxCaracteres.Count > 0) then
+      tratamentoLinhas.AddLinhasColunadas(informacaoLista.Colunas.ToArray,
+        informacaoLista.QtdMaxCaracteres.ToArray, FArquivoTxt);
   end;
 
-end;
-
-procedure TRelatorioMatricial.AddLinhaColunas(memo: Tstrings;
-  colunas: TArray<string>; CaracteresPorColuna: TArray<integer>);
-var
-  linhaAjustada: TStringList;
-  memoTemporario: TStringList;
-  linha, antigaLinha, alinha: string;
-  I, J, espacoEmBranco: integer;
-begin
-  try
-    memoTemporario := TStringList.Create;
-    espacoEmBranco := 0;
-
-    for I := 0 to Length(colunas) - 1 do
-    begin
-      try
-
-        linhaAjustada := TStringList.Create;
-
-        // ajusta a linha
-        linha := AjustaLinhas(colunas[I], CaracteresPorColuna[I], 1000, true);
-
-        // adiciona a linha ajustada em um tstringlist
-        addDelimitador(linha, #10, linhaAjustada);
-
-        // verifica se qtd de linhas da linhas ajustada � maior que a quantidade de memo tempor�rio
-        // se for vai deixa os dois com a mesma quantidade
-        if memoTemporario.Count - 1 < linhaAjustada.Count - 1 then
-        begin
-          if I = 0 then
-          begin
-            for J := 0 to linhaAjustada.Count - 1 do
-              memoTemporario.Add('')
-          end
-          else
-          begin
-            for J := 0 to linhaAjustada.Count - 1 do
-              memoTemporario.Add(alinhaTextoADireita('',
-                espacoEmBranco - 1, ' '));
-
-          end;
-
-        end;
-
-        // adiciona a linha ajusta no memo temporario
-        for J := 0 to linhaAjustada.Count - 1 do
-        begin
-          if (linhaAjustada[J] = sLineBreak) or not(linhaAjustada[J].IsEmpty)
-          then
-          begin
-            if I = 0 then
-            begin
-              antigaLinha := memoTemporario[J];
-              Insert(linhaAjustada[J] + ' ', antigaLinha, 0);
-              espacoEmBranco := CaracteresPorColuna[I] + 2;
-              memoTemporario[J] := antigaLinha;
-            end
-            else
-            begin
-              if memoTemporario[J] = '' then
-                memoTemporario[J] :=
-                  padright('', espacoEmBranco - CaracteresPorColuna[I], ' ');
-
-              antigaLinha := memoTemporario[J];
-              espacoEmBranco := espacoEmBranco + CaracteresPorColuna[I];
-              alinha := trim(linhaAjustada[J]);
-              if I > 1 then
-                alinha := alinhaTextoADireita(alinha,
-                  CaracteresPorColuna[I], ' ')
-              else
-                alinha := alinhaTextoAEsquerda(alinha,
-                  CaracteresPorColuna[I], ' ');
-              Insert(alinha + ' ', antigaLinha, espacoEmBranco);
-              memoTemporario[J] := antigaLinha;
-            end;
-          end;
-        end;
-
-      finally
-        FreeAndNil(linhaAjustada);
-      end;
-
-    end;
-
-    // adiciona no memo destino
-    for I := 0 to memoTemporario.Count - 1 do
-      if (memoTemporario[I] = sLineBreak) or not(memoTemporario[I].IsEmpty) then
-        if trim(memoTemporario[I]) <> '' then
-          memo.Add(memoTemporario[I]);
-
-  finally
-    FreeAndNil(memoTemporario);
-  end;
-
+  Result:= self;
 end;
 
 constructor TRelatorioMatricial.Create;
 begin
   FArquivoTxt:= TStringList.Create();
+  FArquivoTxt.OnChange:= Modificado;
 end;
 
 destructor TRelatorioMatricial.Destroy;
@@ -309,16 +143,72 @@ begin
   inherited;
 end;
 
-procedure TRelatorioMatricial.GerarImpressao;
-begin
-
-end;
-
 function TRelatorioMatricial.imprimir(nomeImpressao, nomeComputador,
   nomeImpressora: string; const preview: boolean): iRelatorio;
+var
+  printer: TextFile;
+  nomeDaImpressora: string;
+  it: string;
 begin
-  GerarImpressao();
   Result:= self;
+  nomeDaImpressora:= Concat('\\', nomeComputador, '\',nomeDaImpressora);
+  try
+    try
+      AssignFile(printer, nomeDaImpressora);
+      for it in FArquivoTxt do
+      begin
+        Writeln(printer, it);
+      end;
+    except
+      raise Exception.Create('Impressora Não encontrada');
+    end;
+  finally
+    CloseFile(printer);
+  end;
+end;
+
+//var
+//  nomeComputadorLocal: string;
+//begin
+//  result := self;
+//  fRelatorio.Title := UpperCase(nomeImpressao);
+//
+//  nomeComputadorLocal := UpperCase(GetLocalComputerName);
+//  if (nomeComputador.IsEmpty) or (nomeImpressora.IsEmpty) then
+//    raise Exception.Create('Nome do computador ou da impressora inválido');
+//
+//  nomeComputador := UpperCase(nomeComputador);
+//  nomeImpressora := UpperCase(nomeImpressora);
+//
+//  if nomeComputador = nomeComputadorLocal then
+//    RLPrinter.PrinterName := nomeImpressora
+//  else
+//    RLPrinter.PrinterName := '\\' + nomeComputador + '\' + nomeImpressora;
+//
+//  if preview then
+//  begin
+//    fRelatorio.preview();
+//  end
+//  else
+//  begin
+//    fRelatorio.Print;
+//  end;
+//
+//
+//  FreeAndNil(fRelatorio);
+//
+//end;
+
+procedure TRelatorioMatricial.Modificado(Sender: TObject);
+var
+  it: string;
+begin
+  for it in FArquivoTxt do
+  begin
+    if it.IsEmpty then
+      FArquivoTxt.Delete(FArquivoTxt.IndexOf(it));
+  end;
+
 end;
 
 function TRelatorioMatricial.Ref: iRelatorio;

@@ -103,12 +103,14 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Model\uRelatorio.Matricial.pas"/>
         <DCCReference Include="..\Relatorio\uRelatorio.InformacacaoImportante.pas"/>
         <DCCReference Include="..\Relatorio\uRelatorio.InformacaoLista.pas"/>
         <DCCReference Include="..\Relatorio\uRelatorio.InformacaoRodape.pas"/>
         <DCCReference Include="..\Relatorio\uRelatorio.InformativosSimples.pas"/>
         <DCCReference Include="..\Relatorio\uRelatorio.Interfaces.pas"/>
-        <DCCReference Include="Model\uRelatorio.Matricial.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.Termica.pas"/>
+        <DCCReference Include="uRelatorio.Linhas.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

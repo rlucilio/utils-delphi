@@ -5,10 +5,26 @@ interface
 uses
    System.Generics.Collections,
    RLReport,
+   Model.LibUtil,
    System.Classes;
 
-type
+const
+      DELAY                           = #27+'X';
+      AVANCAR_BOBINA                  = #13;
+      ESPACAMENTO                     = #27+'M';
+      CONDESADO_ATIVA                 = #15;
+      CONDESADO_DESATIVA              = #18;
+      EXPANDIR_ATIVA                  = #27+'W'+'1';
+      EXPANDIR_DESATIVA               = #27+'W'+'0';
+      SOBRESCRITO_ATIVA               = #27+'S0';
+      SUBESCRITO_ATIVA                = #27+'S1';
+      SOBRESCRITO_SUBESCRITO_DESATIVA = #27+'T';
+      SUBLINHADO_ATIVA                = #27+'-'+'1';
+      SUBLINHADO_DESATIVA             = #27+'-'+'0';
+      NEGRITO_ATIVA                   = #27+'E';
+      NEGRITO_DESATIVA                = #27+'F';
 
+type
    IInformacaoImportante = interface
       ['{C351587B-EB1F-4593-B89F-F7F538259905}']
       function GetInformacoes: TList<string>;
@@ -53,7 +69,7 @@ type
       property QtdMaxCaracteres: integer read GetQtdMaxCaracteres;
    end;
 
-   iRelatorio = interface
+   IRelatorio = interface
       ['{459BA5FD-3809-4690-A3E5-E4337BDEEA42}']
 //      procedure setAlturaPapel(const Value: integer);
 //      procedure setLarguraPapel(const Value: integer);
@@ -68,13 +84,31 @@ type
 //      property larguraPapel: integer write setLarguraPapel;
 //      property alturaPapel: integer write setAlturaPapel;
       function Ref: iRelatorio;
-      procedure AddLinhaColunas(memo: Tstrings; colunas: TArray<string>; CaracteresPorColuna: TArray<integer>);
-      procedure addLinha(memo: Tstrings; linhas: TArray<string>; CaracteresPorColuna: integer);
       function AddInformacaoImportante(informacaoImportante: IInformacaoImportante): iRelatorio;
       function AddInformacaoSimples(informacaoSimples: IInformacaoSimples): iRelatorio;
       function AddInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;
       function AddInformacoesLista(informacaoLista: IInformacaoLista): iRelatorio;
       function Imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;const preview: boolean): iRelatorio;
+   end;
+
+   ITratamentoLinhas = interface
+   ['{0DAFA764-5EB8-4CBE-AB63-A597B577DD60}']
+    function TratarLinha(linha: string; quantidadeCaracteres: integer): TArray<string>;
+    function TratarLinhas(linhas: TArray<string>; quantidadeCaracteres: integer): TArray<string>;
+
+    function AlinharLinha(linha: string; tamanho: integer ; align: TAlignTexto): string;
+    function AlinharLinhas(linhas: TArray<string>;tamanho: integer ; align: TAlignTexto): TArray<string>;
+
+    procedure AddLinha(linha: string; outLinhas: TStrings; caracterEspecial: string = '');
+    procedure AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecial: string = '');
+
+    procedure AddLinhasColunadas(linhas: TArray<string>;TamanhoColunas: TArray<integer>;
+       outLinhas: tstrings; caracterEspecial: string = '');
+
+    procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
+             outLinhas: tstrings; caracterEspecial: string = '');
+    procedure AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
+             outLinhas: tstrings; caracterEspecial: string = '');
    end;
 
 implementation

@@ -48,15 +48,16 @@ object Form1: TForm1
   end
   object btn8: TButton
     Left = 259
-    Top = 40
+    Top = 304
     Width = 75
     Height = 25
     Caption = '5'
     TabOrder = 4
+    OnClick = btn8Click
   end
   object btn9: TButton
-    Left = 97
-    Top = 71
+    Left = 393
+    Top = 231
     Width = 75
     Height = 25
     Caption = '9'

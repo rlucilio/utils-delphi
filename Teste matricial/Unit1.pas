@@ -17,6 +17,7 @@ type
     btn1: TButton;
     procedure btn2Click(Sender: TObject);
     procedure btn1Click(Sender: TObject);
+    procedure btn8Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -29,7 +30,8 @@ var
 implementation
 
 uses
-  Model.LibUtil;
+  Model.LibUtil,
+  WinSpool;
 
 {$R *.dfm}
 
@@ -121,6 +123,67 @@ begin
     closefile(print);
   end;
 
+end;
+
+procedure TForm1.btn8Click(Sender: TObject);
+var
+  Handle: THandle;
+  CaracteresImpressos: DWORD;
+  Documento: TDocInfo1;
+  TextoAnsiString : AnsiString;
+  TextoUnicode: string;
+begin
+  if not OpenPrinter(PChar('Imprede'), Handle, nil) then
+  begin
+    ShowMessage('Impressora não encontrada');
+    Exit;
+  end;
+
+  Documento.pDocName := PChar('Minha impressão');
+  Documento.pOutputFile := nil;
+  Documento.pDataType := 'RAW';
+
+  //Inicia um novo documento no Spool do Windows
+  StartDocPrinter(Handle, 1, @Documento);
+
+  //Apenas notifica o Windows que uma nova página começará.
+  //Nenhum controle é aplicado a impressora.
+  StartPagePrinter(Handle);
+
+  TextoUnicode := #15'Esta linha será impressa em condensado'#18#13#10;
+  TextoAnsiString := AnsiString(TextoUnicode);
+  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
+
+  TextoUnicode := #27#69'Esta linha será impressa em negrito'#27#70#27#53#13#10;
+  TextoAnsiString := AnsiString(TextoUnicode);
+  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
+
+  //Manda um Form Feed para LX-300 quebrar a página
+  TextoUnicode := #12;
+  TextoAnsiString := AnsiString(TextoUnicode);
+  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
+
+  //Apenas notifica o Windows que a página finalizou.
+  //Nenhum controle é aplicado a impressora.
+  EndPagePrinter(Handle);
+
+  StartPagePrinter(Handle);
+
+  TextoUnicode := #27#45#49'Esta linha será impressa em sublinhado'#27#45#48#13#10;
+  TextoAnsiString := AnsiString(TextoUnicode);
+  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
+
+  TextoUnicode := 'Esta é uma linha normal'#13#10;
+  TextoAnsiString := AnsiString(TextoUnicode);
+  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
+
+  EndPagePrinter(Handle);
+
+  //Finaliza o documento no Spool
+  EndDocPrinter(Handle);
+
+  //Fecha a impressora
+  ClosePrinter(Handle);
 end;
 
 end.
