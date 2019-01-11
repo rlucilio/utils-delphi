@@ -14,7 +14,9 @@ type
     btn6: TButton;
     btn8: TButton;
     btn9: TButton;
+    btn1: TButton;
     procedure btn2Click(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -26,7 +28,17 @@ var
 
 implementation
 
+uses
+  Model.LibUtil;
+
 {$R *.dfm}
+
+procedure TForm1.btn1Click(Sender: TObject);
+begin
+  ShowMessage(AlinhaString('Renan', '-', 48, atRigth));
+  ShowMessage(AlinhaString('Renan', '-', 48, atLeft));
+  ShowMessage(AlinhaString('Renan', '-', 48, atCenter));
+end;
 
 procedure TForm1.btn2Click(Sender: TObject);
 var

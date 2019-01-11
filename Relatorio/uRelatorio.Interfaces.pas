@@ -68,6 +68,8 @@ type
 //      property larguraPapel: integer write setLarguraPapel;
 //      property alturaPapel: integer write setAlturaPapel;
       function Ref: iRelatorio;
+      procedure AddLinhaColunas(memo: Tstrings; colunas: TArray<string>; CaracteresPorColuna: TArray<integer>);
+      procedure addLinha(memo: Tstrings; linhas: TArray<string>; CaracteresPorColuna: integer);
       function AddInformacaoImportante(informacaoImportante: IInformacaoImportante): iRelatorio;
       function AddInformacaoSimples(informacaoSimples: IInformacaoSimples): iRelatorio;
       function AddInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;

@@ -5,6 +5,9 @@ interface
 uses
   System.Win.Registry, System.Classes;
 
+type
+  TAlignTexto = (atCenter, atLeft, atRigth);
+
 procedure instalarFontes(nomeRecurso, nomeArquivo: string);
 
 function getIP: string;
@@ -36,6 +39,8 @@ function getListaPastas(dir: string): TArray<string>;
 
 function GetVersaoPrograma(const programa: string): string;
 
+function AlinhaString(texto, caracter: String; tamanho: Word; alinhamento: TAlignTexto): String;
+
 implementation
 
 uses
@@ -43,6 +48,25 @@ uses
 {$ENDIF},
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
   Model.PowerCMD, System.Generics.Collections, System.Types;
+
+
+function AlinhaString(texto, caracter: String; tamanho: Word; alinhamento: TAlignTexto): String;
+var
+  X: Integer;
+begin
+  Result := Copy(texto, 1, tamanho);
+  for X := Length( texto ) to tamanho - 1 do
+  begin
+    case alinhamento of
+      atLeft: Result := Caracter + Result;
+      atRigth: Result := Result + Caracter;
+      atCenter: if (X mod 2) = 0 then
+                  Result := Result + Caracter
+                else
+                  Result := Caracter + Result;
+    end;
+  end;
+end;
 
 function GetVersaoPrograma(const programa: string): string;
 var

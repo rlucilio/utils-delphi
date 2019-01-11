@@ -62,8 +62,14 @@ type
 implementation
 
 uses
-  Winapi.Windows, RLTypes, JclSysInfo, System.SysUtils, RLPrinters, RLConsts,
-  System.UITypes, Model.LibUtil;
+  Winapi.Windows,
+  RLTypes,
+  JclSysInfo,
+  System.SysUtils,
+  RLPrinters,
+  RLConsts,
+  System.UITypes,
+  Model.LibUtil;
 
 { TRelatorioTermica }
 

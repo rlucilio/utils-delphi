@@ -103,12 +103,11 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.InformacacaoImportante.pas"/>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.InformacaoLista.pas"/>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.InformacaoRodape.pas"/>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.InformativosSimples.pas"/>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.Interfaces.pas"/>
-        <DCCReference Include="..\..\Documents\Projetos\Uteis\Relatorio\uRelatorio.Termica.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.InformacacaoImportante.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.InformacaoLista.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.InformacaoRodape.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.InformativosSimples.pas"/>
+        <DCCReference Include="..\Relatorio\uRelatorio.Interfaces.pas"/>
         <DCCReference Include="Model\uRelatorio.Matricial.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
