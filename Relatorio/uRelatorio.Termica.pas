@@ -69,60 +69,61 @@ uses
 function TRelatorioTermica.addInformacaoImportante(informacaoImportante
   : IInformacaoImportante): iRelatorio;
 var
-  band: TRLBand;                        
+  band: TRLBand;
   memoTitulo, memoInformacao: TRLMemo;
   titulo, informacoes: TArray<string>;
   tratamentoLinhas: ITratamentoLinhas;
 begin
   tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
-
-  if not(informacaoImportante.titulo.IsEmpty) or
-    (informacaoImportante.informacoes.Count > 0) then
+  if Assigned(informacaoImportante) then
   begin
-    band := TRLBand.Create(fRelatorio);
-    band.Parent := fRelatorio;
-    band.Margins.BottomMargin := 1;
-    band.AutoSize := true;
-    band.BandType := btHeader;
+    if not(informacaoImportante.titulo.IsEmpty) or
+      (informacaoImportante.informacoes.Count > 0) then
+    begin
+      band := TRLBand.Create(fRelatorio);
+      band.Parent := fRelatorio;
+      band.Margins.BottomMargin := 1;
+      band.AutoSize := true;
+      band.BandType := btHeader;
+
+      if not(informacaoImportante.titulo.IsEmpty) then
+      begin
+        memoTitulo := TRLMemo.Create(band);
+        memoTitulo.Parent := band;
+        memoTitulo.Align := faTop;
+        memoTitulo.Alignment := taJustify;
+        memoTitulo.Behavior := [beSiteExpander];
+        memoTitulo.Font.Charset := DEFAULT_CHARSET;
+        memoTitulo.Font.Color := $000000;
+        memoTitulo.Font.Size := informacaoImportante.tamanhaoTitulo;
+        memoTitulo.Font.Name := 'Arial';
+        memoTitulo.Font.Style := [TFontStyle.fsBold];
+        memoTitulo.Layout := tlCenter;
+
+        titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.titulo, 30);
+        tratamentoLinhas.AddLinhas(titulo, memoTitulo.Lines);
+      end;
+
+      if (informacaoImportante.informacoes.Count > 0) then
+      begin
+        memoInformacao := TRLMemo.Create(band);
+        memoInformacao.Parent := band;
+        memoInformacao.Align := faTop;
+        memoInformacao.Alignment := taJustify;
+        memoInformacao.Behavior := [beSiteExpander];
+        memoInformacao.Font.Charset := DEFAULT_CHARSET;
+        memoInformacao.Font.Color := $000000;
+        memoInformacao.Font.Size := informacaoImportante.tamanhoInformacoes;
+        memoInformacao.Font.Name := 'Arial';
+        memoInformacao.Font.Style := [TFontStyle.fsBold];
+        memoInformacao.Layout := tlCenter;
+
+        informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, informacaoImportante.QtdMaxCaracteres);
+        tratamentoLinhas.AddLinhas(informacoes, memoInformacao.Lines);
+      end;
+    end;
   end;
-
-  if not(informacaoImportante.titulo.IsEmpty) then
-  begin
-    memoTitulo := TRLMemo.Create(band);
-    memoTitulo.Parent := band;
-    memoTitulo.Align := faTop;
-    memoTitulo.Alignment := taJustify;
-    memoTitulo.Behavior := [beSiteExpander];
-    memoTitulo.Font.Charset := DEFAULT_CHARSET;
-    memoTitulo.Font.Color := $000000;
-    memoTitulo.Font.Size := informacaoImportante.tamanhaoTitulo;
-    memoTitulo.Font.Name := 'Arial';
-    memoTitulo.Font.Style := [TFontStyle.fsBold];
-    memoTitulo.Layout := tlCenter;
-
-    titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.titulo, informacaoImportante.qtdMaxCaracteres);
-    tratamentoLinhas.AddLinhas(titulo, memoTitulo.Lines);
-  end;
-
-  if (informacaoImportante.informacoes.Count > 0) then
-  begin
-    memoInformacao := TRLMemo.Create(band);
-    memoInformacao.Parent := band;
-    memoInformacao.Align := faTop;
-    memoInformacao.Alignment := taJustify;
-    memoInformacao.Behavior := [beSiteExpander];
-    memoInformacao.Font.Charset := DEFAULT_CHARSET;
-    memoInformacao.Font.Color := $000000;
-    memoInformacao.Font.Size := informacaoImportante.tamanhoInformacoes;
-    memoInformacao.Font.Name := 'Arial';
-    memoInformacao.Font.Style := [TFontStyle.fsBold];
-    memoInformacao.Layout := tlCenter;
-
-    informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, informacaoImportante.QtdMaxCaracteres);
-    tratamentoLinhas.AddLinhas(informacoes, memoInformacao.Lines);
-  end;
-
 end;
 
 function TRelatorioTermica.addInformacaoRodape(informacaoRodape
@@ -137,34 +138,37 @@ begin
   tratamentoLinhas:= TTratamentoLinhas.New();
 
   result := self;
-  if informacaoRodape.linhas.Count > 0 then
+  if Assigned(informacaoRodape) then
   begin
-    band := TRLBand.Create(fRelatorio);
-    band.Parent := fRelatorio;
-    band.AutoSize := true;
-    band.BandType := btFooter;
-    band.Margins.BottomMargin := 6;
+    if informacaoRodape.linhas.Count > 0 then
+    begin
+      band := TRLBand.Create(fRelatorio);
+      band.Parent := fRelatorio;
+      band.AutoSize := true;
+      band.BandType := btFooter;
+      band.Margins.BottomMargin := 6;
 
-    pnlEspacoFinal := TRLPanel.Create(band);
-    pnlEspacoFinal.Parent := band;
-    pnlEspacoFinal.Align := faBottom;
-    pnlEspacoFinal.Color := $FFFFFF;
-    pnlEspacoFinal.ParentFont := False;
-    pnlEspacoFinal.Transparent := False;
+      pnlEspacoFinal := TRLPanel.Create(band);
+      pnlEspacoFinal.Parent := band;
+      pnlEspacoFinal.Align := faBottom;
+      pnlEspacoFinal.Color := $FFFFFF;
+      pnlEspacoFinal.ParentFont := False;
+      pnlEspacoFinal.Transparent := False;
 
-    memo := TRLMemo.Create(band);
-    memo.Parent := band;
-    memo.Align := faBottom;
-    memo.Alignment := taCenter;
-    memo.Behavior := [beSiteExpander];
-    memo.Font.Charset := DEFAULT_CHARSET;
-    memo.Font.Color := $000000;
-    memo.Font.Size := informacaoRodape.tamanho;
-    memo.Font.Name := 'Arial';
-    memo.ParentFont := False;
+      memo := TRLMemo.Create(band);
+      memo.Parent := band;
+      memo.Align := faBottom;
+      memo.Alignment := taJustify;
+      memo.Behavior := [beSiteExpander];
+      memo.Font.Charset := DEFAULT_CHARSET;
+      memo.Font.Color := $000000;
+      memo.Font.Size := informacaoRodape.tamanho;
+      memo.Font.Name := 'Arial';
+      memo.ParentFont := False;
 
-    linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, informacaoRodape.QtdMaxCaracteres);
-    tratamentoLinhas.AddLinhas(linhas, memo.Lines);
+      linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, informacaoRodape.QtdMaxCaracteres);
+      tratamentoLinhas.AddLinhas(linhas, memo.Lines);
+    end;
   end;
 end;
 
@@ -178,66 +182,66 @@ var
 begin
   tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
-
-  if not(informacaoSimples.titulo.IsEmpty) or
-    not(informacaoSimples.Informativo.IsEmpty) then
+  if Assigned(informacaoSimples) then
   begin
-    band := TRLBand.Create(fRelatorio);
-    band.Parent := fRelatorio;
-    band.AutoSize := true;
-    band.BandType := btHeader;
-    band.Margins.BottomMargin := 0;
-    band.Font.Charset := DEFAULT_CHARSET;
-    band.Font.Color := $000000;
-    band.Font.Size := informacaoSimples.tamanho;
-    band.Font.Name := 'Arial';
-    band.Font.Style := [TFontStyle.fsBold];
-    band.ParentFont := False;
-
-    memoInformacaoSimples := TRLMemo.Create(band);
-    memoInformacaoSimples.Parent:= band;
-    memoInformacaoSimples.Align:= faTop;
-    memoInformacaoSimples.Alignment:= taJustify;
-    memoInformacaoSimples.Behavior:=[beSiteExpander];
-    memoInformacaoSimples.Layout:= tlCenter;
-  end;
-
-  if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
-  begin
-    memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
-    memoInformacaoSimples.Alignment:= taCenter;
-
-    titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
-    informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
-    tratamentoLinhas.AddLinhasKeyValue(titulo, informacoes, informacaoSimples.QtdMaxCaracteres, memoInformacaoSimples.Lines);
-    Exit(self);
-  end;
-
-  if not(informacaoSimples.titulo.IsEmpty) then
-  begin
-    memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
-    memoInformacaoSimples.Alignment:= taCenter;
-    
-    if not informacaoSimples.titulo.contains('-') then
+    if not(informacaoSimples.titulo.IsEmpty) or
+      not(informacaoSimples.Informativo.IsEmpty) then
     begin
-      memoInformacaoSimples.AutoSize := False;
-      memoInformacaoSimples.Width := 150;
+      band := TRLBand.Create(fRelatorio);
+      band.Parent := fRelatorio;
+      band.AutoSize := true;
+      band.BandType := btHeader;
+      band.Margins.BottomMargin := 0;
+      band.Font.Charset := DEFAULT_CHARSET;
+      band.Font.Color := $000000;
+      band.Font.Size := informacaoSimples.tamanho;
+      band.Font.Name := 'Lucida Console';
+      band.Font.Style := [TFontStyle.fsBold];
+      band.ParentFont := False;
+
+      memoInformacaoSimples := TRLMemo.Create(band);
+      memoInformacaoSimples.Parent:= band;
+      memoInformacaoSimples.Align:= faTop;
+      memoInformacaoSimples.Alignment:= taJustify;
+      memoInformacaoSimples.Behavior:=[beSiteExpander];
+      memoInformacaoSimples.Layout:= tlCenter;
+
+      if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
+      begin
+        memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
+
+        titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
+        informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
+        tratamentoLinhas.AddLinhasKeyValue(titulo, informacoes, informacaoSimples.QtdMaxCaracteres, memoInformacaoSimples.Lines);
+        Exit(self);
+      end;
+
+      if not(informacaoSimples.titulo.IsEmpty) then
+      begin
+        memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
+
+        if not informacaoSimples.titulo.contains('-') then
+        begin
+          memoInformacaoSimples.AutoSize := False;
+          memoInformacaoSimples.Width := 150;
+        end;
+
+        titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
+        tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
+      end;
+
+      if not(informacaoSimples.Informativo.IsEmpty) then
+      begin
+        if not informacaoSimples.titulo.contains('-') then
+        begin
+          memoInformacaoSimples.AutoSize := False;
+          memoInformacaoSimples.Width := 120;
+        end;
+
+        informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
+        tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
+      end;
     end;
-
-    titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
-    tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
-  end;
-
-  if not(informacaoSimples.Informativo.IsEmpty) then
-  begin
-    if not informacaoSimples.titulo.contains('-') then
-    begin
-      memoInformacaoSimples.AutoSize := False;
-      memoInformacaoSimples.Width := 120;
-    end;
-
-    informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
-    tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
   end;
 
 end;
@@ -251,28 +255,34 @@ var
 begin
   tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
-  if (informacaoLista.qtdMaxCaracteres.Count > 0) and
-    (informacaoLista.colunas.Count > 0) then
+  if Assigned(informacaoLista) then
   begin
-    band := TRLBand.Create(fRelatorio);
-    band.Parent := fRelatorio;
-    band.Margins.BottomMargin := 1;
-    band.AutoSize := true;
-    band.BandType := btHeader;
+    if (informacaoLista.qtdMaxCaracteres.Count > 0) and
+      (informacaoLista.colunas.Count > 0) then
+    begin
+      band := TRLBand.Create(fRelatorio);
+      band.Parent := fRelatorio;
+      band.Margins.BottomMargin := 1;
+      band.AutoSize := true;
+      band.BandType := btHeader;
 
-    memo := TRLMemo.Create(band);
-    memo.Parent := band;
-    memo.Align := faTop;
-    memo.Alignment := taJustify;
-    memo.Behavior := [beSiteExpander];
-    memo.Font.Charset := DEFAULT_CHARSET;
-    memo.Font.Color := $000000;
-    memo.Font.Size := 9;
-    memo.Font.Name := 'Lucida Console';
-    memo.Font.Style := [TFontStyle.fsBold];
-    memo.ParentFont := False;
+      memo := TRLMemo.Create(band);
+      memo.Parent := band;
+      memo.Align := faTop;
+      memo.Alignment := taJustify;
+      memo.Behavior := [beSiteExpander];
+      memo.Font.Charset := DEFAULT_CHARSET;
+      memo.Font.Color := $000000;
+      memo.Font.Size := 9;
+      memo.Font.Name := 'Lucida Console';
+      memo.Font.Style := [TFontStyle.fsBold];
+      memo.ParentFont := False;
 
-    tratamentoLinhas.AddLinhasColunadas(memo.Lines, informacaoLista.Colunas.ToArray, informacaoLista.QtdMaxCaracteres.ToArray);
+      tratamentoLinhas.AddLinhasColunadas(
+      memo.Lines,
+      informacaoLista.Colunas.ToArray,
+      informacaoLista.QtdMaxCaracteres.ToArray);
+    end;
   end;
 end;
 

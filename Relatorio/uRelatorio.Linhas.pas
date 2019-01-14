@@ -77,7 +77,7 @@ var
   resultado: TStringList;
   linhasAjustadas: TList<string>;
   _texto: string;
-  colunaAtual, I: Integer;
+  colunaAtual, I, indice: Integer;
 begin
   resultado:= TStringList.Create;
   linhasAjustadas:= TList<string>.Create;
@@ -98,12 +98,22 @@ begin
             for I := 0 to Pred(linhasAjustadas.Count) do
               resultado.Add(_texto)
           end
-          else
-          begin
-            _texto:= AlinharLinha('', Length(resultado[Pred(resultado.Count)]), atCenter);
-            for I := Pred(resultado.Count) to Pred(linhasAjustadas.Count) do
+          else 
+          begin   
+            if resultado.Count > -1 then
             begin
-              resultado.Add(_texto);
+              if Pred(resultado.Count) > -1 then
+              begin
+                if  resultado[Pred(resultado.Count)].IsEmpty then
+                  _texto:= ''
+                else
+                  _texto:= AlinharLinha('', Length(resultado[Pred(resultado.Count)]), atCenter);
+              end;
+              
+              for I := Pred(resultado.Count) to Pred(linhasAjustadas.Count) do
+              begin
+                resultado.Add(_texto);
+              end;
             end;
           end;
         end

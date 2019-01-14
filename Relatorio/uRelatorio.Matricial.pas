@@ -171,6 +171,11 @@ begin
 
       Writeln(print, AVANCAR_BOBINA);
       Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
 
     except
       raise Exception.Create('Impressora Não encontrada');
