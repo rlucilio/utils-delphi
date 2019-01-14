@@ -41,6 +41,8 @@ function GetVersaoPrograma(const programa: string): string;
 
 function AlinhaString(texto, caracter: String; tamanho: Word; alinhamento: TAlignTexto): String;
 
+function RemoveAcento(aText : string) : string;
+
 implementation
 
 uses
@@ -50,12 +52,34 @@ uses
   Model.PowerCMD, System.Generics.Collections, System.Types;
 
 
+function RemoveAcento(aText : string) : string;
+const
+  ComAcento = 'àâêôûãõáéíóúçüñýÀÂÊÔÛÃÕÁÉÍÓÚÇÜÑÝ';
+  SemAcento = 'aaeouaoaeioucunyAAEOUAOAEIOUCUNY';
+var
+  x: Cardinal;
+begin;
+  for x := 1 to Length(aText) do
+  try
+    if (Pos(aText[x], ComAcento) <> 0) then
+      aText[x] := SemAcento[ Pos(aText[x], ComAcento) ];
+  except on E: Exception do
+    raise Exception.Create('Erro no processo.');
+  end;
+
+  Result := aText;
+end;
+
+
 function AlinhaString(texto, caracter: String; tamanho: Word; alinhamento: TAlignTexto): String;
 var
   X: Integer;
 begin
+  if alinhamento = atCenter then
+    texto:= Trim(texto);
+
   Result := Copy(texto, 1, tamanho);
-  for X := Length( texto ) to tamanho - 1 do
+  for X := Length(texto) to tamanho - 1 do
   begin
     case alinhamento of
       atLeft: Result := Caracter + Result;
@@ -66,6 +90,7 @@ begin
                   Result := Caracter + Result;
     end;
   end;
+
 end;
 
 function GetVersaoPrograma(const programa: string): string;

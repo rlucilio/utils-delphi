@@ -16,9 +16,7 @@ type
       Finformacoes: TList<string>;
       FtamanhoInformacoes: integer;
       FqtdMaxCaracteres: integer;
-      //
-      constructor Create(titulo: string; tamanhoTitulo, qtdMaxCaracteres,
-        tamanhoInformacoes: integer; informacoes: TList<string>);
+
       function getInformacoes: TList<string>;
       function getQtdMaxCaracteres: integer;
       function getTamanhaoTitulo: integer;
@@ -28,6 +26,8 @@ type
       class function New(titulo: string; tamanhoTitulo, qtdMaxCaracteres,
         tamanhoInformacoes: integer; informacoes: TList<string>)
         : IInformacaoImportante;
+      constructor Create(titulo: string; tamanhoTitulo, qtdMaxCaracteres,
+        tamanhoInformacoes: integer; informacoes: TList<string>);
       destructor Destroy; override;
       //
       property titulo: string read getTitulo;

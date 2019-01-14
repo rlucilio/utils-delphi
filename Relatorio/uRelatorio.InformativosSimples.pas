@@ -14,8 +14,7 @@ type
       Ftamanho: integer;
       FqtdMaxCaracteres: integer;
       //
-      constructor Create(titulo, Informativo: string;
-        tamanho, qtdMaxCaracteres: integer);
+
       function getInformativo: string;
       function getQtdMaxCaracteres: integer;
       function getTamanho: integer;
@@ -23,6 +22,8 @@ type
    public
       class function New(titulo, Informativo: string;
         tamanho, qtdMaxCaracteres: integer): IInformacaoSimples;
+      constructor Create(titulo, Informativo: string;
+        tamanho, qtdMaxCaracteres: integer);
       destructor Destroy; override;
       //
       property titulo: string read getTitulo;

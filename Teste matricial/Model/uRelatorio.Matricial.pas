@@ -6,7 +6,6 @@ interface
 uses
   uRelatorio.Interfaces,
   System.Classes;
-
 type
   TRelatorioMatricial = class(TInterfacedObject, iRelatorio)
   private
@@ -22,6 +21,8 @@ type
     function addInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;
     function addInformacoesLista(informacaoLista: IInformacaoLista): iRelatorio;
     function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;const preview: boolean): iRelatorio;
+
+    property ArquivoTxt: TStringList read FArquivoTxt;
   end;
 
 implementation
@@ -29,7 +30,8 @@ implementation
 uses
   Model.LibUtil,
   System.SysUtils,
-  uRelatorio.Linhas;
+  uRelatorio.Linhas,
+  ACBrUtil;
 
 { TRelatorioMatricial }
 
@@ -38,7 +40,9 @@ function TRelatorioMatricial.addInformacaoImportante(
 var
   tratamentoLinhas: ITratamentoLinhas;
   titulo, informacoes: TArray<string>;
+  _arquivo: TStrings;
 begin
+  _arquivo:= FArquivoTxt;
   Result:= self;
   tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoImportante) then
@@ -48,14 +52,14 @@ begin
       titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.Titulo, 24);
       titulo:= tratamentoLinhas.AlinharLinhas(titulo, 24, atCenter);
 
-      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt, EXPANDIR_ATIVA);
+      tratamentoLinhas.AddLinhas(titulo, _arquivo, EXPANDIR_ATIVA,EXPANDIR_DESATIVA);
     end;
 
     if informacaoImportante.Informacoes.Count > 0 then
     begin
       informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, 48);
-      informacoes:= tratamentoLinhas.AlinharLinhas(informacoes, 28, atLeft);
-      tratamentoLinhas.AddLinhas(informacoes, FArquivoTxt);
+      informacoes:= tratamentoLinhas.AlinharLinhas(informacoes, 48, atLeft);
+      tratamentoLinhas.AddLinhas(informacoes, _arquivo);
     end;
   end;
 end;
@@ -65,7 +69,9 @@ function TRelatorioMatricial.addInformacaoRodape(
 var
   tratamentoLinhas: ITratamentoLinhas;
   linhas: TArray<string>;
+  _arquivo: TStrings;
 begin
+  _arquivo:= FArquivoTxt;
   Result:= self;
   tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoRodape) then
@@ -74,7 +80,7 @@ begin
     begin
       linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, 60);
       linhas:= tratamentoLinhas.AlinharLinhas(linhas, 60, atCenter);
-      tratamentoLinhas.AddLinhas(linhas, FArquivoTxt, CONDESADO_ATIVA);
+      tratamentoLinhas.AddLinhas(linhas, _arquivo, CONDESADO_ATIVA, CONDESADO_DESATIVA);
     end;
   end;
 end;
@@ -84,30 +90,32 @@ function TRelatorioMatricial.addInformacaoSimples(
 var
   tratamentoLinhas: ITratamentoLinhas;
   titulo, informativo: TArray<string>;
+  _arquivo: TStrings;
 begin
+  _arquivo:= FArquivoTxt;
   Result:= self;
   tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoSimples) then
   begin
     if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
     begin
-      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 24);
-      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, 24);
-      tratamentoLinhas.AddLinhasKeyValue(titulo, informativo, 48, FArquivoTxt, NEGRITO_ATIVA);
+      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 12);
+      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, 12);
+      tratamentoLinhas.AddLinhasKeyValue(titulo, informativo, 24, _arquivo, NEGRITO_ATIVA+EXPANDIR_ATIVA, NEGRITO_DESATIVA+EXPANDIR_DESATIVA);
       Exit(self);
     end;
 
     if not(informacaoSimples.Titulo.IsEmpty) then
     begin
       titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
-      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt, NEGRITO_ATIVA);
+      tratamentoLinhas.AddLinhas(titulo, _arquivo, NEGRITO_ATIVA, NEGRITO_DESATIVA);
       Exit(self);
     end;
 
     if not(informacaoSimples.Informativo.IsEmpty) then
     begin
       informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
-      tratamentoLinhas.AddLinhas(titulo, FArquivoTxt);
+      tratamentoLinhas.AddLinhas(titulo, _arquivo);
       Exit(self);
     end;
   end;
@@ -118,14 +126,16 @@ function TRelatorioMatricial.addInformacoesLista(
   informacaoLista: IInformacaoLista): iRelatorio;
 var
   tratamentoLinhas: ITratamentoLinhas;
+  _arquivo: TStrings;
 begin
+  _arquivo:= FArquivoTxt;
   Result:= self;
   tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoLista) then
   begin
     if (informacaoLista.Colunas.Count > 0) and (informacaoLista.QtdMaxCaracteres.Count > 0) then
-      tratamentoLinhas.AddLinhasColunadas(informacaoLista.Colunas.ToArray,
-        informacaoLista.QtdMaxCaracteres.ToArray, FArquivoTxt);
+      tratamentoLinhas.AddLinhasColunadas(_arquivo, informacaoLista.Colunas.ToArray,
+        informacaoLista.QtdMaxCaracteres.ToArray);
   end;
 
   Result:= self;
@@ -146,69 +156,46 @@ end;
 function TRelatorioMatricial.imprimir(nomeImpressao, nomeComputador,
   nomeImpressora: string; const preview: boolean): iRelatorio;
 var
-  printer: TextFile;
-  nomeDaImpressora: string;
+  print: TextFile;
+  ondeVaiImprimir: string;
   it: string;
 begin
   Result:= self;
-  nomeDaImpressora:= Concat('\\', nomeComputador, '\',nomeDaImpressora);
+  ondeVaiImprimir:= Concat('\\', nomeComputador, '\',nomeImpressora);
   try
     try
-      AssignFile(printer, nomeDaImpressora);
-      for it in FArquivoTxt do
+      AssignFile(print, ondeVaiImprimir);
+      Rewrite(print);
+      for it in ArquivoTxt do
       begin
-        Writeln(printer, it);
+        Writeln(print, RemoveAcento(it));
       end;
+
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
+      Writeln(print, AVANCAR_BOBINA);
     except
       raise Exception.Create('Impressora Não encontrada');
     end;
   finally
-    CloseFile(printer);
+    CloseFile(print);
   end;
 end;
 
-//var
-//  nomeComputadorLocal: string;
-//begin
-//  result := self;
-//  fRelatorio.Title := UpperCase(nomeImpressao);
-//
-//  nomeComputadorLocal := UpperCase(GetLocalComputerName);
-//  if (nomeComputador.IsEmpty) or (nomeImpressora.IsEmpty) then
-//    raise Exception.Create('Nome do computador ou da impressora inválido');
-//
-//  nomeComputador := UpperCase(nomeComputador);
-//  nomeImpressora := UpperCase(nomeImpressora);
-//
-//  if nomeComputador = nomeComputadorLocal then
-//    RLPrinter.PrinterName := nomeImpressora
-//  else
-//    RLPrinter.PrinterName := '\\' + nomeComputador + '\' + nomeImpressora;
-//
-//  if preview then
-//  begin
-//    fRelatorio.preview();
-//  end
-//  else
-//  begin
-//    fRelatorio.Print;
-//  end;
-//
-//
-//  FreeAndNil(fRelatorio);
-//
-//end;
-
 procedure TRelatorioMatricial.Modificado(Sender: TObject);
 var
-  it: string;
+  I: Integer;
 begin
-  for it in FArquivoTxt do
+  for I := 0 to Pred(FArquivoTxt.Count) do
   begin
-    if it.IsEmpty then
-      FArquivoTxt.Delete(FArquivoTxt.IndexOf(it));
+    if FArquivoTxt[I].IsEmpty then
+      FArquivoTxt.Delete(I);
   end;
-
 end;
 
 function TRelatorioMatricial.Ref: iRelatorio;

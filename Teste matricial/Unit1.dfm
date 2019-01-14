@@ -14,8 +14,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object btn2: TButton
-    Left = 16
-    Top = 40
+    Left = 296
+    Top = 271
     Width = 75
     Height = 25
     Caption = '2'
@@ -39,16 +39,17 @@ object Form1: TForm1
     TabOrder = 2
   end
   object btn6: TButton
-    Left = 178
-    Top = 40
+    Left = 115
+    Top = 214
     Width = 75
     Height = 25
     Caption = '4'
     TabOrder = 3
+    OnClick = btn6Click
   end
   object btn8: TButton
-    Left = 259
-    Top = 304
+    Left = 267
+    Top = 344
     Width = 75
     Height = 25
     Caption = '5'
@@ -56,20 +57,30 @@ object Form1: TForm1
     OnClick = btn8Click
   end
   object btn9: TButton
-    Left = 393
-    Top = 231
+    Left = 401
+    Top = 271
     Width = 75
     Height = 25
     Caption = '9'
     TabOrder = 5
+    OnClick = btn9Click
   end
   object btn1: TButton
-    Left = 56
-    Top = 304
+    Left = 64
+    Top = 344
     Width = 75
     Height = 25
     Caption = 'btn1'
     TabOrder = 6
     OnClick = btn1Click
+  end
+  object mmo1: TMemo
+    Left = 115
+    Top = 71
+    Width = 388
+    Height = 137
+    Lines.Strings = (
+      'mmo1')
+    TabOrder = 7
   end
 end

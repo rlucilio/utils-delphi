@@ -11,6 +11,7 @@ uses
 type
   TTratamentoLinhas = class(TInterfacedObject, ITratamentoLinhas)
   private
+
   public
     function TratarLinha(linha: string; quantidadeCaracteres: integer): TArray<string>;
     function TratarLinhas(linhas: TArray<string>; quantidadeCaracteres: integer): TArray<string>;
@@ -18,16 +19,15 @@ type
     function AlinharLinha(linha: string; tamanho: integer ; align: TAlignTexto): string;
     function AlinharLinhas(linhas: TArray<string>;tamanho: integer ; align: TAlignTexto): TArray<string>;
 
-    procedure AddLinha(linha: string; outLinhas: TStrings; caracterEspecial: string = '');
-    procedure AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecial: string = '');
+    procedure AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+    procedure AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 
-    procedure AddLinhasColunadas(linhas: TArray<string>;TamanhoColunas: TArray<integer>;
-       outLinhas: tstrings; caracterEspecial: string = '');
+    procedure AddLinhasColunadas(var outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 
     procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
-             outLinhas: tstrings; caracterEspecial: string = '');
+            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
     procedure AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
-             outLinhas: tstrings; caracterEspecial: string = '');
+            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 
     class function New: ITratamentoLinhas;
   end;
@@ -39,118 +39,131 @@ uses
 
 { TTratamentoLinhas }
 
-procedure TTratamentoLinhas.AddLinha(linha: string; outLinhas: TStrings; caracterEspecial: string = '');
+procedure TTratamentoLinhas.AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 begin
-  if (outLinhas.IndexOf(linha) = -1) and not(string.IsNullOrWhiteSpace(linha)) then
-    outLinhas.Add(Concat(caracterEspecial, linha));
+  if not string.IsNullOrWhiteSpace(linha) then
+    outLinhas.Add(Concat(caracterEspecialAntes, linha, caracterEspecialDepois));
 end;
 
 
 procedure TTratamentoLinhas.AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
-             outLinhas: tstrings; caracterEspecial: string = '');
+            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 var
   tamanhoDivido: integer;
-  keyAjustado, valueAjutado, linha: string;
+  keyAjustado, valueAjustado, linha: string;
 begin
-  tamanhoDivido:= trunc(quantidadeMaximaCaracteres / 2);
-
-  keyAjustado:= AlinharLinha(key, tamanhoDivido, atLeft);
-  valueAjutado:= AlinharLinha(key, tamanhoDivido, atRigth);
-  linha:= Concat(keyAjustado, valueAjutado);
-  outLinhas.Add(Concat(caracterEspecial, linha));
+  tamanhoDivido:= trunc(quantidadeMaximaCaracteres/2);
+  key:= trim(key);
+  value:= Trim(value);
+  keyAjustado:= AlinharLinha(key, tamanhoDivido, atRigth);
+  valueAjustado:= AlinharLinha(value, tamanhoDivido, atLeft);
+  linha:= Concat(keyAjustado, valueAjustado);
+  outLinhas.Add(Concat(caracterEspecialAntes, linha, caracterEspecialDepois));
 end;
 
-procedure TTratamentoLinhas.AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecial: string = '');
+procedure TTratamentoLinhas.AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 var
   it: string;
 begin
   for it in linhas do
   begin
-      AddLinha(it, outLinhas, caracterEspecial);
+      AddLinha(it, outLinhas, caracterEspecialAntes, caracterEspecialDepois);
   end;
 end;
 
-procedure TTratamentoLinhas.AddLinhasColunadas(linhas: TArray<string>;TamanhoColunas: TArray<integer>;
-       outLinhas: tstrings; caracterEspecial: string = '');
+procedure TTratamentoLinhas.AddLinhasColunadas(var outLinhas: Tstrings; colunas: TArray<string>;
+       quantidadeCaracteres: TArray<integer>);
 var
-  linhasNovas: TArray<string>;
   resultado: TStringList;
-  _linha, linha, espacoEmBranco: string;
-  I, J, quantidadeEspacoEmBranco: integer;
+  linhasNovas: TList<string>;
+  espacoEmBraco, _texto, _alinhamento: string;
+  colunaN, linhaNovaN: Integer;
 begin
-  resultado := TStringList.Create;
-  quantidadeEspacoEmBranco := 0;
+  resultado:= TStringList.Create;
+  linhasNovas:= TList<string>.Create;
   try
-    for I := 0 to Length(linhas) - 1 do
+    if ((Length(colunas)>0) and (Length(quantidadeCaracteres)>0)) and
+        (Length(colunas) = Length(quantidadeCaracteres)) then
     begin
-      // ajusta a linha
-      linhasNovas := TratarLinha(linhas[I], TamanhoColunas[I]);
-
-      // verifica se qtd de linhas da linhas ajustada é maior que a quantidade de resultado
-      // se for vai deixa os dois com a mesma quantidade
-      if resultado.Count - 1 < Length(linhasNovas) - 1 then
+      for colunaN := 0 to Pred(Length(colunas)) do
       begin
-        if I = 0 then
-          for J := 0 to Length(linhasNovas) - 1 do
-            resultado.Add('')
-        else
-        for J := 0 to Length(linhasNovas) - 1 do
-        begin
-          espacoEmBranco:= alinhaTextoADireita('', quantidadeEspacoEmBranco - 1, ' ');
-          resultado.Add(espacoEmBranco);
-        end;
-      end;
+        linhasNovas.AddRange(TratarLinha(colunas[colunaN], quantidadeCaracteres[colunaN]));
 
-      // adiciona as novas linhas ajustadas no resultado
-      for J := 0 to Length(linhasNovas) - 1 do
-      begin
-        if (linhasNovas[J] = sLineBreak) or not(linhasNovas[J].IsEmpty) then
+        if resultado.Count < Length(linhasNovas) then
         begin
-          if I = 0 then
+          if colunaN = 0 then
           begin
-            _linha := resultado[J];
-
-            Insert(linhasNovas[J] + ' ', _linha, 0);
-
-            quantidadeEspacoEmBranco := TamanhoColunas[I] + 2;
-
-            resultado[J] := _linha;
+            _texto:= AlinhaString('', '¨', )
+            _texto:= AlinharLinha(' ', quantidadeCaracteres[colunaN], atRigth);
+            for linhaNovaN := 0 to Pred(Length(linhasNovas)) do
+              resultado.Add(_texto)
           end
           else
           begin
-            _linha := resultado[J];
-
-            if resultado[J] = '' then
-              resultado[J] := padright('', quantidadeEspacoEmBranco - TamanhoColunas[I], ' ');
-
-            quantidadeEspacoEmBranco := quantidadeEspacoEmBranco + TamanhoColunas[I];
-
-            linha := trim(linhasNovas[J]);
-
-            if I > 1 then
-              linha := alinhaTextoADireita(linha, TamanhoColunas[I], ' ')
-            else
-              linha := alinhaTextoAEsquerda(linha, TamanhoColunas[I], ' ');
-
-            Insert(linha + ' ', _linha, quantidadeEspacoEmBranco);
-            resultado[J] := _linha;
+            _texto:= AlinharLinha(' ', Length(resultado[colunaN]) + quantidadeCaracteres[colunaN], atRigth);
+            resultado.Add(_texto);
+          end;
+        end
+        else
+        begin
+          if colunaN > 0 then
+          begin
+            _texto:= AlinharLinha(' ', Length(resultado[colunaN]) + quantidadeCaracteres[colunaN], atRigth);
+            linhasNovas.Add(_texto);
           end;
         end;
+        { TODO : TERMINAR ESSE MÈTODO }
+
+//
+//        for linhaNovaN := 0 to Pred(Length(linhasNovas)) do
+//        begin
+//          if not linhasNovas[linhaNovaN].IsEmpty then
+//          begin
+//            if colunaN = 0 then
+//            begin
+//              _texto:= resultado[linhaNovaN];
+//              Insert(trim(linhasNovas[linhaNovaN]) + ' ', _texto, 0);
+//              espacoEntreColunas:= quantidadeCaracteres[colunaN]+2;
+//              resultado[linhaNovaN]:= _texto;
+//            end
+//            else
+//            begin
+//              if resultado[linhaNovaN].IsEmpty then
+//              begin
+//                _texto:= AlinharLinha(' ', espacoEntreColunas - quantidadeCaracteres[colunaN], atLeft);
+//                resultado[linhaNovaN]:= _texto;
+//              end;
+//
+//              _texto:= resultado[linhaNovaN];
+//              espacoEntreColunas:= espacoEntreColunas + quantidadeCaracteres[colunaN];
+//
+//              _alinhamento:= linhasNovas[linhaNovaN].Trim();
+//              if colunaN > 1 then
+//                _alinhamento:= AlinharLinha(_alinhamento, quantidadeCaracteres[colunaN], atLeft)
+//              else
+//                _alinhamento:= AlinharLinha(_alinhamento, quantidadeCaracteres[colunaN], atRigth);
+//
+//              Insert(_alinhamento +' ', _texto, espacoEntreColunas);
+//
+//              resultado[linhaNovaN]:= _texto;
+//            end;
+//          end;
+//        end;
       end;
     end;
-
-    // adiciona no memo destino
-    for I := 0 to resultado.Count - 1 do
-        if trim(resultado[I]) <> '' then
-          outLinhas.Add(Concat(caracterEspecial, resultado[I]));
-
   finally
-    FreeAndNil(resultado);
+    linhasNovas.Free;
+    resultado.Free;
   end;
+
+  for linhaNovaN := 0 to Pred(resultado.Count) do
+    if not(trim(resultado[linhaNovaN]).IsEmpty) then
+      outLinhas.Add(resultado[linhaNovaN]);
+
 end;
 
 procedure TTratamentoLinhas.AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
-             outLinhas: tstrings; caracterEspecial: string = '');
+            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 var
   I: Integer;
   keys, values: TList<string>;
@@ -164,13 +177,13 @@ begin
       for I := Pred(keys.Count) to Pred(values.Count) do
         keys.Add('');
 
-    if keys.Count >= values.Count then
+    if keys.Count > values.Count then
       for I := Pred(values.Count) to Pred(keys.Count) do
         values.Add('');
 
     for I := 0 to Pred(keys.Count) do
     begin
-      AddLinhaKeyValue(key[I], value[I], quantidadeMaximaCaracteres, outLinhas, caracterEspecial);
+      AddLinhaKeyValue(key[I], value[I], quantidadeMaximaCaracteres, outLinhas, caracterEspecialAntes, caracterEspecialDepois);
     end;
   finally
     keys.Free;
@@ -210,13 +223,13 @@ function TTratamentoLinhas.TratarLinha(linha: string; quantidadeCaracteres: inte
 var
   resultado: TStringList;
   linhasNovas: TStringList;
-  it, it2, linhaAjustada: string;
+  it, linhaAjustada: string;
   I: integer;
 begin
   resultado:= TStringList.Create();
   linhasNovas := TStringList.Create();
   try
-    linhaAjustada := String(AjustaLinhas(AnsiString(it), quantidadeCaracteres, 1000, true));
+    linhaAjustada := String(AjustaLinhas(AnsiString(linha), quantidadeCaracteres, 1000, true));
 
     addDelimitador(linhaAjustada, #10, linhasNovas);
 
@@ -225,9 +238,9 @@ begin
       if (linhasNovas[I] = sLineBreak) or not(trim(linhasNovas[I]).IsEmpty)
       then
       begin
-        for it2 in resultado do
+        for it in resultado do
         begin
-          if trim(linhasNovas[I]).contains(trim(it2)) then
+          if trim(linhasNovas[I]).contains(trim(it)) then
           begin
             linhasNovas[I] := '';
             break;

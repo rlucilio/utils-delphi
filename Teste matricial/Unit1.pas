@@ -15,9 +15,12 @@ type
     btn8: TButton;
     btn9: TButton;
     btn1: TButton;
+    mmo1: TMemo;
     procedure btn2Click(Sender: TObject);
     procedure btn1Click(Sender: TObject);
     procedure btn8Click(Sender: TObject);
+    procedure btn9Click(Sender: TObject);
+    procedure btn6Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -31,7 +34,8 @@ implementation
 
 uses
   Model.LibUtil,
-  WinSpool;
+  WinSpool, uRelatorio.Interfaces, uRelatorio.InformativosSimples, uRelatorio.Linhas, uRelatorio.Termica, uRelatorio.InformacacaoImportante, uRelatorio.Matricial, uRelatorio.InformacaoRodape, uRelatorio.InformacaoLista,
+  System.Generics.Collections;
 
 {$R *.dfm}
 
@@ -125,6 +129,32 @@ begin
 
 end;
 
+procedure TForm1.btn6Click(Sender: TObject);
+var
+  listaInteger: TList<Integer>;
+  listaString3: TList<string>;
+  _aux: TStrings;
+begin
+  listaInteger:= TList<Integer>.Create;
+  listaString3:= TList<string>.Create;
+  try
+    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
+    listaString3.Add('123456789');
+    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
+    listaString3.Add('123456789');
+
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    _aux:= mmo1.Lines;
+    TTratamentoLinhas.New.AddLinhasColunadas(_aux, listaString3.ToArray, listaInteger.ToArray);
+  finally
+    listaInteger.Free;
+    listaString3.Free;
+  end;
+end;
+
 procedure TForm1.btn8Click(Sender: TObject);
 var
   Handle: THandle;
@@ -184,6 +214,67 @@ begin
 
   //Fecha a impressora
   ClosePrinter(Handle);
+end;
+
+
+
+procedure TForm1.btn9Click(Sender: TObject);
+var
+  importante: IInformacaoImportante;
+  simples: IInformacaoSimples;
+  rodape: IInformacaoRodape;
+  lista: IInformacaoLista;
+
+  relatorio: TRelatorioMatricial;
+  listaString: TList<string>;
+  listaString2: TList<string>;
+  listaString3: TList<string>;
+  listaInteger: TList<Integer>;
+begin
+  relatorio:= TRelatorioMatricial.Create;
+  relatorio.Ref;
+
+  listaInteger:= TList<Integer>.Create;
+  listaString3:= TList<string>.Create;
+  listaString2:= TList<string>.Create;
+  listaString:= TList<string>.Create;
+  try
+    listaString.Add('Endereco: Rua Roberto Cavanza Endereco: Rua Roberto Cavanza Endereco: Rua Roberto Cavanza Endereco: Rua Roberto Cavanza');
+    listaString.Add('Contato: 4679-6537');
+    listaString.Add('Contato: 4679-6537');
+    listaString.Add('Contato: 4679-6537');
+    importante:= TInformacaoImportante.New('RENAN LUCILIO RENAN LUCILIO RENAN LUCILIO RENAN LUCILIO', 0, 0, 0, listaString);
+    relatorio.addInformacaoImportante(importante);
+
+    simples:= TInformacaoSimples.New('Total:','45,00', 0, 0);
+    relatorio.addInformacaoSimples(simples);
+
+    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
+    listaString3.Add('123456789');
+    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
+    listaString3.Add('123456789');
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    listaInteger.Add(10);
+    lista:= TInformacaoLista.New(listaString3, listaInteger);
+    relatorio.addInformacoesLista(lista);
+
+
+    listaString2.Add('SICLOP');
+    listaString2.Add('p.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.brwww.centralsiclop.com.br');
+    rodape:=  TInformacaoRodape.New(listaString2, 0, 0);
+    relatorio.addInformacaoRodape(rodape);
+
+
+
+    relatorio.imprimir('', 'RenanLucilio', 'imprede', false);
+  finally
+    listaInteger.Free;
+    listaString3.Free;
+    listaString2.Free;
+    listaString.Free;
+  end;
 end;
 
 end.
