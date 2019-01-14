@@ -133,22 +133,20 @@ procedure TForm1.btn6Click(Sender: TObject);
 var
   listaInteger: TList<Integer>;
   listaString3: TList<string>;
-  _aux: TStrings;
 begin
   listaInteger:= TList<Integer>.Create;
   listaString3:= TList<string>.Create;
   try
-    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
-    listaString3.Add('123456789');
-    listaString3.Add('Renan Renan Renan Renan Renan Renan Renan Renan Renan');
-    listaString3.Add('123456789');
+    listaString3.Add('RenanLucilioRenanLucilioRenanLucilioRenanLucilioRenanLucilioRenanLucilio');
+    listaString3.Add('12345678912345678912345678912');
+    listaString3.Add('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+    listaString3.Add('RERERERERERERRERE');
 
     listaInteger.Add(10);
     listaInteger.Add(10);
     listaInteger.Add(10);
     listaInteger.Add(10);
-    _aux:= mmo1.Lines;
-    TTratamentoLinhas.New.AddLinhasColunadas(_aux, listaString3.ToArray, listaInteger.ToArray);
+    TTratamentoLinhas.New.AddLinhasColunadas(mmo1.Lines, listaString3.ToArray, listaInteger.ToArray);
   finally
     listaInteger.Free;
     listaString3.Free;

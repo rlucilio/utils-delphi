@@ -102,7 +102,7 @@ type
     procedure AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
     procedure AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 
-    procedure AddLinhasColunadas(var outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
+    procedure AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 
     procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
             var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');

@@ -22,10 +22,11 @@ type
     procedure AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
     procedure AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 
-    procedure AddLinhasColunadas(var outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
+    procedure AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 
     procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
             var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+
     procedure AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
             var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 
@@ -71,95 +72,79 @@ begin
   end;
 end;
 
-procedure TTratamentoLinhas.AddLinhasColunadas(var outLinhas: Tstrings; colunas: TArray<string>;
+procedure TTratamentoLinhas.AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>;
        quantidadeCaracteres: TArray<integer>);
 var
   resultado: TStringList;
-  linhasNovas: TList<string>;
-  espacoEmBraco, _texto, _alinhamento: string;
-  colunaN, linhaNovaN: Integer;
+  linhasAjustadas: TList<string>;
+  _texto: string;
+  colunaAtual, I: Integer;
 begin
   resultado:= TStringList.Create;
-  linhasNovas:= TList<string>.Create;
+  linhasAjustadas:= TList<string>.Create;
   try
     if ((Length(colunas)>0) and (Length(quantidadeCaracteres)>0)) and
         (Length(colunas) = Length(quantidadeCaracteres)) then
     begin
-      for colunaN := 0 to Pred(Length(colunas)) do
+      for colunaAtual := 0 to Pred(Length(colunas)) do
       begin
-        linhasNovas.AddRange(TratarLinha(colunas[colunaN], quantidadeCaracteres[colunaN]));
+        linhasAjustadas.Clear;
+        linhasAjustadas.AddRange(TratarLinha(colunas[colunaAtual], quantidadeCaracteres[colunaAtual]));
 
-        if resultado.Count < Length(linhasNovas) then
+        if resultado.Count < linhasAjustadas.Count then
         begin
-          if colunaN = 0 then
+          {Linhas ajusdatadas maior}
+          if colunaAtual = 0 then
           begin
-            _texto:= AlinhaString('', '¨', )
-            _texto:= AlinharLinha(' ', quantidadeCaracteres[colunaN], atRigth);
-            for linhaNovaN := 0 to Pred(Length(linhasNovas)) do
+            for I := 0 to Pred(linhasAjustadas.Count) do
               resultado.Add(_texto)
           end
           else
           begin
-            _texto:= AlinharLinha(' ', Length(resultado[colunaN]) + quantidadeCaracteres[colunaN], atRigth);
-            resultado.Add(_texto);
+            _texto:= AlinharLinha('', Length(resultado[Pred(resultado.Count)]), atCenter);
+            for I := Pred(resultado.Count) to Pred(linhasAjustadas.Count) do
+            begin
+              resultado.Add(_texto);
+            end;
           end;
         end
         else
         begin
-          if colunaN > 0 then
+          {resultado maior}
+          _texto:= AlinharLinha('', quantidadeCaracteres[colunaAtual], atCenter);
+          for I := Pred(linhasAjustadas.Count) to Pred(resultado.Count)-1 do
           begin
-            _texto:= AlinharLinha(' ', Length(resultado[colunaN]) + quantidadeCaracteres[colunaN], atRigth);
-            linhasNovas.Add(_texto);
+            linhasAjustadas.Add(_texto);
           end;
         end;
-        { TODO : TERMINAR ESSE MÈTODO }
 
-//
-//        for linhaNovaN := 0 to Pred(Length(linhasNovas)) do
-//        begin
-//          if not linhasNovas[linhaNovaN].IsEmpty then
-//          begin
-//            if colunaN = 0 then
-//            begin
-//              _texto:= resultado[linhaNovaN];
-//              Insert(trim(linhasNovas[linhaNovaN]) + ' ', _texto, 0);
-//              espacoEntreColunas:= quantidadeCaracteres[colunaN]+2;
-//              resultado[linhaNovaN]:= _texto;
-//            end
-//            else
-//            begin
-//              if resultado[linhaNovaN].IsEmpty then
-//              begin
-//                _texto:= AlinharLinha(' ', espacoEntreColunas - quantidadeCaracteres[colunaN], atLeft);
-//                resultado[linhaNovaN]:= _texto;
-//              end;
-//
-//              _texto:= resultado[linhaNovaN];
-//              espacoEntreColunas:= espacoEntreColunas + quantidadeCaracteres[colunaN];
-//
-//              _alinhamento:= linhasNovas[linhaNovaN].Trim();
-//              if colunaN > 1 then
-//                _alinhamento:= AlinharLinha(_alinhamento, quantidadeCaracteres[colunaN], atLeft)
-//              else
-//                _alinhamento:= AlinharLinha(_alinhamento, quantidadeCaracteres[colunaN], atRigth);
-//
-//              Insert(_alinhamento +' ', _texto, espacoEntreColunas);
-//
-//              resultado[linhaNovaN]:= _texto;
-//            end;
-//          end;
-//        end;
+        for I := 0 to Pred(linhasAjustadas.Count) do
+        begin
+          if colunaAtual = 0 then
+          begin
+            resultado[I]:= AlinharLinha(linhasAjustadas[I], quantidadeCaracteres[colunaAtual], atRigth);
+          end
+          else
+          begin
+            if colunaAtual > 1 then
+              _texto:= Concat(resultado[I], ' ', AlinharLinha(linhasAjustadas[I], quantidadeCaracteres[colunaAtual], atRigth))
+            else
+              _texto:= Concat(resultado[I], ' ', AlinharLinha(linhasAjustadas[I], quantidadeCaracteres[colunaAtual], atLeft));
+
+            resultado[I]:= _texto;
+          end;
+        end;
       end;
     end;
+
+   for I := 0 to Pred(resultado.Count) do
+    if not(trim(resultado[I]).IsEmpty) then
+      outLinhas.Add(resultado[I]);
+
   finally
-    linhasNovas.Free;
+    linhasAjustadas.Free;
     resultado.Free;
   end;
-
-  for linhaNovaN := 0 to Pred(resultado.Count) do
-    if not(trim(resultado[linhaNovaN]).IsEmpty) then
-      outLinhas.Add(resultado[linhaNovaN]);
-
 end;
 
 procedure TTratamentoLinhas.AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;

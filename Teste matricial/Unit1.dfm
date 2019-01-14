@@ -79,8 +79,14 @@ object Form1: TForm1
     Top = 71
     Width = 388
     Height = 137
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Courier'
+    Font.Style = []
     Lines.Strings = (
       'mmo1')
+    ParentFont = False
     TabOrder = 7
   end
 end
