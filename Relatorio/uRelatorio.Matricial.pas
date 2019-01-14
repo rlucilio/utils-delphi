@@ -109,14 +109,12 @@ begin
     begin
       titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
       tratamentoLinhas.AddLinhas(titulo, _arquivo, NEGRITO_ATIVA, NEGRITO_DESATIVA);
-      Exit(self);
     end;
 
     if not(informacaoSimples.Informativo.IsEmpty) then
     begin
       informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 48);
       tratamentoLinhas.AddLinhas(titulo, _arquivo);
-      Exit(self);
     end;
   end;
   Result:= self;

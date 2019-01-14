@@ -19,16 +19,16 @@ type
     function AlinharLinha(linha: string; tamanho: integer ; align: TAlignTexto): string;
     function AlinharLinhas(linhas: TArray<string>;tamanho: integer ; align: TAlignTexto): TArray<string>;
 
-    procedure AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
-    procedure AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
+    procedure AddLinha(linha: string; outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+    procedure AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 
     procedure AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 
     procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 
     procedure AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 
     class function New: ITratamentoLinhas;
   end;
@@ -40,7 +40,7 @@ uses
 
 { TTratamentoLinhas }
 
-procedure TTratamentoLinhas.AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+procedure TTratamentoLinhas.AddLinha(linha: string; outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 begin
   if not string.IsNullOrWhiteSpace(linha) then
     outLinhas.Add(Concat(caracterEspecialAntes, linha, caracterEspecialDepois));
@@ -48,7 +48,7 @@ end;
 
 
 procedure TTratamentoLinhas.AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 var
   tamanhoDivido: integer;
   keyAjustado, valueAjustado, linha: string;
@@ -62,7 +62,7 @@ begin
   outLinhas.Add(Concat(caracterEspecialAntes, linha, caracterEspecialDepois));
 end;
 
-procedure TTratamentoLinhas.AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
+procedure TTratamentoLinhas.AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 var
   it: string;
 begin
@@ -72,8 +72,7 @@ begin
   end;
 end;
 
-procedure TTratamentoLinhas.AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>;
-       quantidadeCaracteres: TArray<integer>);
+procedure TTratamentoLinhas.AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 var
   resultado: TStringList;
   linhasAjustadas: TList<string>;
@@ -148,7 +147,7 @@ begin
 end;
 
 procedure TTratamentoLinhas.AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
 var
   I: Integer;
   keys, values: TList<string>;

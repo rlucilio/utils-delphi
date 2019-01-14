@@ -99,15 +99,15 @@ type
     function AlinharLinha(linha: string; tamanho: integer ; align: TAlignTexto): string;
     function AlinharLinhas(linhas: TArray<string>;tamanho: integer ; align: TAlignTexto): TArray<string>;
 
-    procedure AddLinha(linha: string;var outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
-    procedure AddLinhas(linhas: TArray<string>;var outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
+    procedure AddLinha(linha: string; outLinhas: TStrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+    procedure AddLinhas(linhas: TArray<string>; outLinhas: TStrings; caracterEspecialAntes: string = ''; caracterEspecialDepois: string = '');
 
     procedure AddLinhasColunadas(outLinhas: Tstrings; colunas: TArray<string>; quantidadeCaracteres: TArray<integer>);
 
     procedure AddLinhaKeyValue(key, value: string;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
     procedure AddLinhasKeyValue(key, value: TArray<string>;quantidadeMaximaCaracteres: integer;
-            var outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
+             outLinhas: tstrings; caracterEspecialAntes:string = ''; caracterEspecialDepois: string = '');
    end;
 
 implementation

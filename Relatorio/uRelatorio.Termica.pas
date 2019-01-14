@@ -20,24 +20,20 @@ type
     FmargeInferior: integer;
     FlarguraPapel: integer;
     FalturaPapel: integer;
-    //
-    constructor Create(margeDireita, margeEsquerda, margeSuperior,
-      margeInferior, larguraPapel, alturaPapel: integer);
+
     procedure setAlturaPapel(const Value: integer);
     procedure setLarguraPapel(const Value: integer);
     procedure setMargeDireita(const Value: integer);
     procedure setMargeEsquerda(const Value: integer);
     procedure setMargeInferior(const Value: integer);
     procedure setMargeSuperior(const Value: integer);
-    procedure AddLinhaColunas(memo: Tstrings; colunas: TArray<string>;
-      CaracteresPorColuna: TArray<integer>);
-    procedure addLinha(memo: Tstrings; linhas: TArray<string>;
-      CaracteresPorColuna: integer);
   public
     class function New(margeDireita, margeEsquerda, margeSuperior,
       margeInferior, larguraPapel, alturaPapel: integer): iRelatorio;
+
+    constructor Create(margeDireita, margeEsquerda, margeSuperior,
+      margeInferior, larguraPapel, alturaPapel: integer);
     destructor Destroy; override;
-    //
 
     property margeDireita: integer write setMargeDireita;
     property margeEsquerda: integer write setMargeEsquerda;
@@ -45,16 +41,12 @@ type
     property margeInferior: integer write setMargeInferior;
     property larguraPapel: integer write setLarguraPapel;
     property alturaPapel: integer write setAlturaPapel;
-    function addInformacaoImportante(informacaoImportante
-      : IInformacaoImportante): iRelatorio;
-    function addInformacaoSimples(informacaoSimples: IInformacaoSimples)
-      : iRelatorio;
-    function addInformacaoRodape(informacaoRodape: IInformacaoRodape)
-      : iRelatorio;
-    function addInformacoesLista(informacaoLista: IInformacaoLista)
-      : iRelatorio;
-    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;
-      const preview: boolean): iRelatorio;
+
+    function addInformacaoImportante(informacaoImportante: IInformacaoImportante): iRelatorio;
+    function addInformacaoSimples(informacaoSimples: IInformacaoSimples): iRelatorio;
+    function addInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;
+    function addInformacoesLista(informacaoLista: IInformacaoLista): iRelatorio;
+    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;const preview: boolean): iRelatorio;
 
     function Ref: iRelatorio;
   end;
@@ -69,16 +61,20 @@ uses
   RLPrinters,
   RLConsts,
   System.UITypes,
-  Model.LibUtil;
+  Model.LibUtil,
+  uRelatorio.Linhas;
 
 { TRelatorioTermica }
 
 function TRelatorioTermica.addInformacaoImportante(informacaoImportante
   : IInformacaoImportante): iRelatorio;
 var
-  band: TRLBand;
+  band: TRLBand;                        
   memoTitulo, memoInformacao: TRLMemo;
+  titulo, informacoes: TArray<string>;
+  tratamentoLinhas: ITratamentoLinhas;
 begin
+  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
 
   if not(informacaoImportante.titulo.IsEmpty) or
@@ -105,8 +101,8 @@ begin
     memoTitulo.Font.Style := [TFontStyle.fsBold];
     memoTitulo.Layout := tlCenter;
 
-    addLinha(memoTitulo.Lines, [informacaoImportante.titulo],
-      informacaoImportante.qtdMaxCaracteres);
+    titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.titulo, informacaoImportante.qtdMaxCaracteres);
+    tratamentoLinhas.AddLinhas(titulo, memoTitulo.Lines);
   end;
 
   if (informacaoImportante.informacoes.Count > 0) then
@@ -123,8 +119,8 @@ begin
     memoInformacao.Font.Style := [TFontStyle.fsBold];
     memoInformacao.Layout := tlCenter;
 
-    addLinha(memoInformacao.Lines, informacaoImportante.informacoes.ToArray,
-      informacaoImportante.qtdMaxCaracteres);
+    informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, informacaoImportante.QtdMaxCaracteres);
+    tratamentoLinhas.AddLinhas(informacoes, memoInformacao.Lines);
   end;
 
 end;
@@ -135,7 +131,10 @@ var
   band: TRLBand;
   pnlEspacoFinal: TRLPanel;
   memo: TRLMemo;
+  linhas: TArray<string>;
+  tratamentoLinhas: ITratamentoLinhas;
 begin
+  tratamentoLinhas:= TTratamentoLinhas.New();
 
   result := self;
   if informacaoRodape.linhas.Count > 0 then
@@ -164,8 +163,8 @@ begin
     memo.Font.Name := 'Arial';
     memo.ParentFont := False;
 
-    addLinha(memo.Lines, informacaoRodape.linhas.ToArray,
-      informacaoRodape.qtdMaxCaracteres);
+    linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, informacaoRodape.QtdMaxCaracteres);
+    tratamentoLinhas.AddLinhas(linhas, memo.Lines);
   end;
 end;
 
@@ -173,8 +172,11 @@ function TRelatorioTermica.addInformacaoSimples(informacaoSimples
   : IInformacaoSimples): iRelatorio;
 var
   band: TRLBand;
-  lblTitulo, lblInformacao: TRLLabel;
+  memoInformacaoSimples: TRLMemo;
+  tratamentoLinhas: ITratamentoLinhas;
+  titulo, informacoes: TArray<string>;
 begin
+  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
 
   if not(informacaoSimples.titulo.IsEmpty) or
@@ -191,38 +193,51 @@ begin
     band.Font.Name := 'Arial';
     band.Font.Style := [TFontStyle.fsBold];
     band.ParentFont := False;
+
+    memoInformacaoSimples := TRLMemo.Create(band);
+    memoInformacaoSimples.Parent:= band;
+    memoInformacaoSimples.Align:= faTop;
+    memoInformacaoSimples.Alignment:= taJustify;
+    memoInformacaoSimples.Behavior:=[beSiteExpander];
+    memoInformacaoSimples.Layout:= tlCenter;
+  end;
+
+  if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
+  begin
+    memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
+    memoInformacaoSimples.Alignment:= taCenter;
+
+    titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
+    informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
+    tratamentoLinhas.AddLinhasKeyValue(titulo, informacoes, informacaoSimples.QtdMaxCaracteres, memoInformacaoSimples.Lines);
+    Exit(self);
   end;
 
   if not(informacaoSimples.titulo.IsEmpty) then
   begin
-    lblTitulo := TRLLabel.Create(band);
-    lblTitulo.Parent := band;
+    memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
+    memoInformacaoSimples.Alignment:= taCenter;
+    
     if not informacaoSimples.titulo.contains('-') then
     begin
-      lblTitulo.AutoSize := False;
-      lblTitulo.Width := 150;
+      memoInformacaoSimples.AutoSize := False;
+      memoInformacaoSimples.Width := 150;
     end;
-    lblTitulo.Align := faLeft;
-    lblTitulo.Caption := informacaoSimples.titulo;
-    lblTitulo.Layout := tlCenter;
+
+    titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
+    tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
   end;
 
   if not(informacaoSimples.Informativo.IsEmpty) then
   begin
-    lblInformacao := TRLLabel.Create(band);
-
-    lblInformacao.Parent := band;
-
     if not informacaoSimples.titulo.contains('-') then
     begin
-      lblInformacao.AutoSize := False;
-      lblInformacao.Width := 120;
+      memoInformacaoSimples.AutoSize := False;
+      memoInformacaoSimples.Width := 120;
     end;
 
-    lblInformacao.Align := faLeft;
-    lblInformacao.Caption := informacaoSimples.Informativo;
-    lblInformacao.Alignment:= taRightJustify;
-    lblTitulo.Layout := tlCenter;
+    informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
+    tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
   end;
 
 end;
@@ -232,7 +247,9 @@ function TRelatorioTermica.addInformacoesLista(informacaoLista
 var
   band: TRLBand;
   memo: TRLMemo;
+  tratamentoLinhas: ITratamentoLinhas;
 begin
+  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
   if (informacaoLista.qtdMaxCaracteres.Count > 0) and
     (informacaoLista.colunas.Count > 0) then
@@ -254,159 +271,9 @@ begin
     memo.Font.Name := 'Lucida Console';
     memo.Font.Style := [TFontStyle.fsBold];
     memo.ParentFont := False;
-    AddLinhaColunas(memo.Lines, informacaoLista.colunas.ToArray,
-      informacaoLista.qtdMaxCaracteres.ToArray);
+
+    tratamentoLinhas.AddLinhasColunadas(memo.Lines, informacaoLista.Colunas.ToArray, informacaoLista.QtdMaxCaracteres.ToArray);
   end;
-end;
-
-procedure TRelatorioTermica.addLinha(memo: Tstrings; linhas: TArray<string>;
-  CaracteresPorColuna: integer);
-var
-  linhaAjustada: TStringList;
-  item, linha: string;
-  I: integer;
-  item2: string;
-begin
-  try
-    linhaAjustada := TStringList.Create;
-    for item in linhas do
-    begin
-      linha := AjustaLinhas(item, CaracteresPorColuna, 1000, true);
-
-      addDelimitador(linha, #10, linhaAjustada);
-
-      for I := 0 to linhaAjustada.Count - 1 do
-      begin
-        if (linhaAjustada[I] = sLineBreak) or not(trim(linhaAjustada[I]).IsEmpty)
-        then
-        begin
-
-          for item2 in memo do
-          begin
-            if trim(linhaAjustada[I]).contains(trim(item2)) then
-            begin
-              linhaAjustada[I] := '';
-              break;
-            end;
-
-          end;
-
-          if fRelatorio.PageSetup.PaperWidth <> 145 then
-          begin
-
-            if not(linhaAjustada[I].IsEmpty) then
-              if linhaAjustada[I].contains('|') then
-              begin
-                memo.Add(' ');
-              end
-              else
-                memo.Add(trim(linhaAjustada[I]));
-          end
-          else
-            memo.Add(trim(linhaAjustada[I]));
-        end;
-      end;
-
-    end;
-  finally
-    FreeAndNil(linhaAjustada);
-  end;
-
-end;
-
-procedure TRelatorioTermica.AddLinhaColunas(memo: Tstrings;
-  colunas: TArray<string>; CaracteresPorColuna: TArray<integer>);
-var
-  linhaAjustada: TStringList;
-  memoTemporario: TStringList;
-  linha, antigaLinha, alinha: string;
-  I, J, espacoEmBranco: integer;
-begin
-  try
-    memoTemporario := TStringList.Create;
-    espacoEmBranco := 0;
-
-    for I := 0 to Length(colunas) - 1 do
-    begin
-      try
-
-        linhaAjustada := TStringList.Create;
-
-        // ajusta a linha
-        linha := AjustaLinhas(colunas[I], CaracteresPorColuna[I], 1000, true);
-
-        // adiciona a linha ajustada em um tstringlist
-        addDelimitador(linha, #10, linhaAjustada);
-
-        // verifica se qtd de linhas da linhas ajustada é maior que a quantidade de memo temporário
-        // se for vai deixa os dois com a mesma quantidade
-        if memoTemporario.Count - 1 < linhaAjustada.Count - 1 then
-        begin
-          if I = 0 then
-          begin
-            for J := 0 to linhaAjustada.Count - 1 do
-              memoTemporario.Add('')
-          end
-          else
-          begin
-            for J := 0 to linhaAjustada.Count - 1 do
-              memoTemporario.Add(alinhaTextoADireita('',
-                espacoEmBranco - 1, ' '));
-
-          end;
-
-        end;
-
-        // adiciona a linha ajusta no memo temporario
-        for J := 0 to linhaAjustada.Count - 1 do
-        begin
-          if (linhaAjustada[J] = sLineBreak) or not(linhaAjustada[J].IsEmpty)
-          then
-          begin
-            if I = 0 then
-            begin
-              antigaLinha := memoTemporario[J];
-              Insert(linhaAjustada[J] + ' ', antigaLinha, 0);
-              espacoEmBranco := CaracteresPorColuna[I] + 2;
-              memoTemporario[J] := antigaLinha;
-            end
-            else
-            begin
-              if memoTemporario[J] = '' then
-                memoTemporario[J] :=
-                  padright('', espacoEmBranco - CaracteresPorColuna[I], ' ');
-
-              antigaLinha := memoTemporario[J];
-              espacoEmBranco := espacoEmBranco + CaracteresPorColuna[I];
-              alinha := trim(linhaAjustada[J]);
-              if I > 1 then
-                alinha := alinhaTextoADireita(alinha,
-                  CaracteresPorColuna[I], ' ')
-              else
-                alinha := alinhaTextoAEsquerda(alinha,
-                  CaracteresPorColuna[I], ' ');
-              Insert(alinha + ' ', antigaLinha, espacoEmBranco);
-              memoTemporario[J] := antigaLinha;
-            end;
-          end;
-        end;
-
-      finally
-        FreeAndNil(linhaAjustada);
-      end;
-
-    end;
-
-    // adiciona no memo destino
-    for I := 0 to memoTemporario.Count - 1 do
-      if (memoTemporario[I] = sLineBreak) or not(memoTemporario[I].IsEmpty) then
-        if trim(memoTemporario[I]) <> '' then
-          memo.Add(memoTemporario[I]);
-
-  finally
-    FreeAndNil(memoTemporario);
-  end;
-
 end;
 
 constructor TRelatorioTermica.Create(margeDireita, margeEsquerda, margeSuperior,
@@ -438,20 +305,13 @@ begin
   fRelatorio.Visible := False;
   fRelatorio.UnlimitedHeight := true;
 
-  if FlarguraPapel <> 145 then
-  begin
-    fRelatorio.Margins.TopMargin := FmargeSuperior;
-    fRelatorio.Margins.BottomMargin := FmargeInferior;
-    fRelatorio.Margins.RightMargin := FmargeDireita;
-    fRelatorio.Margins.LeftMargin := FmargeEsquerda;
+  fRelatorio.Margins.TopMargin := FmargeSuperior;
+  fRelatorio.Margins.BottomMargin := FmargeInferior;
+  fRelatorio.Margins.RightMargin := FmargeDireita;
+  fRelatorio.Margins.LeftMargin := FmargeEsquerda;
 
-    fRelatorio.PageSetup.PaperWidth := round(FlarguraPapel / MMAsPixels);
-    fRelatorio.PageSetup.PaperHeight := FalturaPapel;
-  end
-  else
-  begin
-    fRelatorio.PageSetup.PaperWidth := FlarguraPapel;
-  end;
+  fRelatorio.PageSetup.PaperWidth := round(FlarguraPapel / MMAsPixels);
+  fRelatorio.PageSetup.PaperHeight := FalturaPapel;
 end;
 
 destructor TRelatorioTermica.Destroy;
@@ -496,8 +356,13 @@ end;
 class function TRelatorioTermica.New(margeDireita, margeEsquerda, margeSuperior,
   margeInferior, larguraPapel, alturaPapel: integer): iRelatorio;
 begin
-  result := self.Create(margeDireita, margeEsquerda, margeSuperior,
-    margeInferior, larguraPapel, alturaPapel);
+  result := self.Create(
+    margeDireita,
+    margeEsquerda,
+    margeSuperior,
+    margeInferior,
+    larguraPapel,
+    alturaPapel);
 end;
 
 function TRelatorioTermica.Ref: iRelatorio;
