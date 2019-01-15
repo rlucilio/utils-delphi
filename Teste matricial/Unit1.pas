@@ -4,23 +4,26 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RLReport, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RLReport, Vcl.StdCtrls, Vcl.Buttons;
 
 type
   TForm1 = class(TForm)
     btn2: TButton;
-    btn3: TButton;
-    btn4: TButton;
-    btn6: TButton;
-    btn8: TButton;
     btn9: TButton;
     btn1: TButton;
     mmo1: TMemo;
+    edt1: TEdit;
+    btn3: TBitBtn;
+    btn4: TBitBtn;
+    btn5: TBitBtn;
     procedure btn2Click(Sender: TObject);
     procedure btn1Click(Sender: TObject);
     procedure btn8Click(Sender: TObject);
     procedure btn9Click(Sender: TObject);
     procedure btn6Click(Sender: TObject);
+    procedure btn3Click(Sender: TObject);
+    procedure btn4Click(Sender: TObject);
+    procedure btn5Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -35,7 +38,10 @@ implementation
 uses
   Model.LibUtil,
   WinSpool, uRelatorio.Interfaces, uRelatorio.InformativosSimples, uRelatorio.Linhas, uRelatorio.Termica, uRelatorio.InformacacaoImportante, uRelatorio.Matricial, uRelatorio.InformacaoRodape, uRelatorio.InformacaoLista,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  Printers;
+var
+  imp: TPrinter;
 
 {$R *.dfm}
 
@@ -54,7 +60,7 @@ begin
 //      writeLn(print, #13); // Avança bobina
   try
     try
-      Assignfile (print, '\\RenanLucilio\imprede');
+      Assignfile (print, '\\RenanLucilio\Termica');
       rewrite(print);
 
       writeLn(print, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
@@ -129,6 +135,69 @@ begin
 
 end;
 
+procedure TForm1.btn3Click(Sender: TObject);
+var
+  print : textfile ;
+  str: string;
+begin
+//      writeLn(print, #27+'X'); // Delay
+//      writeLn(print, #13); // Avança bobina
+  try
+    try
+      Printer.Canvas.Font.Name := 'Times New Roman';
+      Printer.Canvas.Font.Size:= 40;
+      Assignfile (print, '\\RenanLucilio\Termica');
+      rewrite(print);
+
+
+      writeLn(print,'Renan Lucilio');
+
+      writeLn(print);//pula linha
+      writeLn(print);//pula linha
+      writeLn(print);//pula linha
+      writeLn(print);//pula linha
+      writeLn(print);//pula linha
+
+    except
+      ShowMessage('Erro a fazer impressão');
+    end;
+  finally
+    closefile(print);
+  end;
+
+end;
+
+procedure TForm1.btn4Click(Sender: TObject);
+var
+  indice: Integer;
+  it: string;
+begin
+  imp := TPrinter.Create;
+  indice := imp.Printers.IndexOf('Termica');
+
+  if indice > -1 then
+  begin
+    imp.PrinterIndex:= indice;
+    imp.BeginDoc;
+      for it in imp.Fonts do
+      begin
+        imp.Canvas.Font.Size:= 12;
+        imp.Canvas.TextOut(0,0,it);
+        imp.NewPage;
+      end;
+
+
+    imp.EndDoc;
+  end
+  else
+    ShowMessage('Impressora não existe');
+end;
+
+procedure TForm1.btn5Click(Sender: TObject);
+begin
+  imp.EndDoc
+end;
+
 procedure TForm1.btn6Click(Sender: TObject);
 var
   listaInteger: TList<Integer>;
@@ -155,65 +224,86 @@ end;
 
 procedure TForm1.btn8Click(Sender: TObject);
 var
-  Handle: THandle;
-  CaracteresImpressos: DWORD;
-  Documento: TDocInfo1;
-  TextoAnsiString : AnsiString;
-  TextoUnicode: string;
+  print : textfile ;
 begin
-  if not OpenPrinter(PChar('Imprede'), Handle, nil) then
-  begin
-    ShowMessage('Impressora não encontrada');
-    Exit;
+//      writeLn(print, #27+'X'); // Delay
+//      writeLn(print, #13); // Avança bobina
+  try
+    try
+      Assignfile (print, '\\RenanLucilio\Termica');
+      rewrite(print);
+
+      writeLn(print, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+      //Espaçamento horizontal em 12cpp
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'M'+'ESPAÇAMENTO HORIZONTAL EM 12CPP...');
+      writeLn(print, #27+'M'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      Writeln(print);
+      Writeln(print);
+
+      // Ativa o modo condensado          // Desativa o modo condensado
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #15+'ATIVA O MODO CONDENSADO');
+      writeLn(print, #15+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #15+'DESATIVA ' + #18+ 'O MODO CONDENSADO');
+      Writeln(print);
+      Writeln(print);
+
+      // Ativa o modo expandido      // Desativa o modo expandido
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'W'+'1'+'ATIVA O MODO EXPANDIDO');
+      writeLn(print, #27+'W'+'1'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #27+'W'+'1'+'DESATIVA O '+ #27+'W'+'0'+'MODO EXPANDIDO ');
+      Writeln(print);
+      Writeln(print);
+
+      // Ativa o modo subescrito      // Desativa o modo subescrito
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'S0'+'ATIVA O MODO SUBESCRITO');
+      writeLn(print, #27+'S0'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #27+'S0'+'DESATIVA' +#27+'T'+'MODO SUBESCRITO');
+      Writeln(print);
+      Writeln(print);
+
+      // Ativa o modo sublinhado    // Desativa o modo sublinhado
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'-'+'1'+'ATIVA O MODO SUBLINHADO');
+      writeLn(print, #27+'-'+'1'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #27+'-'+'1'+'DESATIVA O'+ #27+'-'+'0'+'MODO SUBLINHADO');
+      Writeln(print);
+      Writeln(print);
+
+      // Ativa o modo sobrescrito     // Desativa os modos sobrescrito
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'S1'+'ATIVA O MODO SOBRESCRITO');
+      writeLn(print, #27+'S1'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #27+'S1'+'DESATIVA O' +#27+'T'+'MODO SOBRESCRITO');
+      Writeln(print);
+      Writeln(print);
+
+       // Ativa o modo negrito     // Desativa o modo negrito
+      writeLn(print, 'LINHA NORMAL...');
+      writeLn(print, #27+'E'+'ATIVA O MODO NEGRITO ');
+      writeLn(print, #27+'E'+'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+      writeLn(print, #27+'E'+'DESATIVA O ' + #27+'F'+'MODO NEGRITO');
+      Writeln(print);
+      Writeln(print);
+
+      writeLn(print);//pula linha
+       writeLn(print);//pula linha
+        writeLn(print);//pula linha
+         writeLn(print);//pula linha
+          writeLn(print);//pula linha
+
+    except
+      ShowMessage('Erro a fazer impressão');
+    end;
+  finally
+    closefile(print);
   end;
 
-  Documento.pDocName := PChar('Minha impressão');
-  Documento.pOutputFile := nil;
-  Documento.pDataType := 'RAW';
-
-  //Inicia um novo documento no Spool do Windows
-  StartDocPrinter(Handle, 1, @Documento);
-
-  //Apenas notifica o Windows que uma nova página começará.
-  //Nenhum controle é aplicado a impressora.
-  StartPagePrinter(Handle);
-
-  TextoUnicode := #15'Esta linha será impressa em condensado'#18#13#10;
-  TextoAnsiString := AnsiString(TextoUnicode);
-  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
-
-  TextoUnicode := #27#69'Esta linha será impressa em negrito'#27#70#27#53#13#10;
-  TextoAnsiString := AnsiString(TextoUnicode);
-  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
-
-  //Manda um Form Feed para LX-300 quebrar a página
-  TextoUnicode := #12;
-  TextoAnsiString := AnsiString(TextoUnicode);
-  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
-
-  //Apenas notifica o Windows que a página finalizou.
-  //Nenhum controle é aplicado a impressora.
-  EndPagePrinter(Handle);
-
-  StartPagePrinter(Handle);
-
-  TextoUnicode := #27#45#49'Esta linha será impressa em sublinhado'#27#45#48#13#10;
-  TextoAnsiString := AnsiString(TextoUnicode);
-  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
-
-  TextoUnicode := 'Esta é uma linha normal'#13#10;
-  TextoAnsiString := AnsiString(TextoUnicode);
-  WritePrinter(Handle, PAnsiChar(TextoAnsiString), Length(TextoAnsiString), CaracteresImpressos);
-
-  EndPagePrinter(Handle);
-
-  //Finaliza o documento no Spool
-  EndDocPrinter(Handle);
-
-  //Fecha a impressora
-  ClosePrinter(Handle);
 end;
-
 
 
 procedure TForm1.btn9Click(Sender: TObject);
@@ -231,7 +321,7 @@ var
   listaInteger: TList<Integer>;
 begin
   relatorio:= TRelatorioMatricial.Create;
-  relatorio2:= TRelatorioTermica.Create(0, 0, 0, 0, 320, 400);
+//  relatorio2:= TRelatorioTermica.Create(0, 0, 0, 0, 320, 400);
   relatorio.Ref;
   relatorio2.Ref;
 
@@ -273,7 +363,7 @@ begin
 //    relatorio.imprimir('', 'RenanLucilio', 'matricial', false);
 //    relatorio.imprimir('', 'RenanLucilio', 'perto', false);
 
-    relatorio2.imprimir('teste', 'RenanLucilio', 'Termica', false);
+//    relatorio2.imprimir('teste', 'RenanLucilio', 'Termica', false);
   finally
     listaInteger.Free;
     listaString3.Free;

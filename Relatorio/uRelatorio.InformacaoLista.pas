@@ -33,7 +33,6 @@ implementation
 constructor TInformacaoLista.Create(colunas: Tlist<string>;
   qtdMaxCaracteres: Tlist<integer>);
 begin
-   inherited Create;
    Fcolunas := colunas;
    FqtdMaxCaracteres := qtdMaxCaracteres;
 end;

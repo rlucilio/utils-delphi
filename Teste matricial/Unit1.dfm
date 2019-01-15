@@ -14,69 +14,35 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object btn2: TButton
-    Left = 296
-    Top = 271
+    Left = 239
+    Top = 216
     Width = 75
     Height = 25
     Caption = '2'
     TabOrder = 0
     OnClick = btn2Click
   end
-  object btn3: TButton
-    Left = 16
-    Top = 71
-    Width = 75
-    Height = 25
-    Caption = '6'
-    TabOrder = 1
-  end
-  object btn4: TButton
-    Left = 97
-    Top = 40
-    Width = 75
-    Height = 25
-    Caption = '3'
-    TabOrder = 2
-  end
-  object btn6: TButton
-    Left = 115
+  object btn9: TButton
+    Left = 401
     Top = 214
     Width = 75
     Height = 25
-    Caption = '4'
-    TabOrder = 3
-    OnClick = btn6Click
-  end
-  object btn8: TButton
-    Left = 267
-    Top = 344
-    Width = 75
-    Height = 25
-    Caption = '5'
-    TabOrder = 4
-    OnClick = btn8Click
-  end
-  object btn9: TButton
-    Left = 401
-    Top = 271
-    Width = 75
-    Height = 25
     Caption = '9'
-    TabOrder = 5
+    TabOrder = 1
     OnClick = btn9Click
   end
   object btn1: TButton
-    Left = 64
-    Top = 344
+    Left = 144
+    Top = 216
     Width = 75
     Height = 25
     Caption = 'btn1'
-    TabOrder = 6
+    TabOrder = 2
     OnClick = btn1Click
   end
   object mmo1: TMemo
-    Left = 115
-    Top = 71
+    Left = 131
+    Top = 73
     Width = 388
     Height = 137
     Font.Charset = ANSI_CHARSET
@@ -87,6 +53,40 @@ object Form1: TForm1
     Lines.Strings = (
       'mmo1')
     ParentFont = False
+    TabOrder = 3
+  end
+  object edt1: TEdit
+    Left = 40
+    Top = 320
+    Width = 305
+    Height = 21
+    TabOrder = 4
+  end
+  object btn3: TBitBtn
+    Left = 270
+    Top = 346
+    Width = 75
+    Height = 25
+    Caption = 'btn3'
+    TabOrder = 5
+    OnClick = btn3Click
+  end
+  object btn4: TBitBtn
+    Left = 131
+    Top = 289
+    Width = 75
+    Height = 25
+    Caption = 'btn4'
+    TabOrder = 6
+    OnClick = btn4Click
+  end
+  object btn5: TBitBtn
+    Left = 224
+    Top = 289
+    Width = 75
+    Height = 25
+    Caption = 'btn5'
     TabOrder = 7
+    OnClick = btn5Click
   end
 end

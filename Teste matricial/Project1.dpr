@@ -10,7 +10,8 @@ uses
   uRelatorio.Interfaces in '..\Relatorio\uRelatorio.Interfaces.pas',
   uRelatorio.Linhas in '..\Relatorio\uRelatorio.Linhas.pas',
   uRelatorio.Matricial in '..\Relatorio\uRelatorio.Matricial.pas',
-  uRelatorio.Termica in '..\Relatorio\uRelatorio.Termica.pas';
+  uRelatorio.Termica in '..\Relatorio\uRelatorio.Termica.pas',
+  uRelatorio.Bloco in '..\Relatorio\uRelatorio.Bloco.pas';
 
 {$R *.res}
 

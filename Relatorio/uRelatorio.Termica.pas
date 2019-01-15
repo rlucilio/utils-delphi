@@ -1,378 +1,265 @@
-unit uRelatorio.Termica;
-
+﻿unit uRelatorio.Termica;
 
 interface
-
 uses
   uRelatorio.Interfaces,
-  System.Classes,
-  RLReport,
-  ACBrUtil;
+  {$IFDEF FMX}
+    FMX.Printers,
+  {$ELSE}
+    VCL.Printers,
+  {$ENDIF}
+  uRelatorio.Bloco,
+  System.Generics.Collections,
+  System.UITypes,
+  Model.LibUtil,
+  System.Classes;
 
 type
 
   TRelatorioTermica = class(TInterfacedObject, iRelatorio)
   private
-    fRelatorio: TRLReport;
-    FmargeDireita: integer;
-    FmargeEsquerda: integer;
-    FmargeSuperior: integer;
-    FmargeInferior: integer;
-    FlarguraPapel: integer;
-    FalturaPapel: integer;
-
-    procedure setAlturaPapel(const Value: integer);
-    procedure setLarguraPapel(const Value: integer);
-    procedure setMargeDireita(const Value: integer);
-    procedure setMargeEsquerda(const Value: integer);
-    procedure setMargeInferior(const Value: integer);
-    procedure setMargeSuperior(const Value: integer);
+    FImpressora: TPrinter;
+    FBlocosImpressao: TObjectList<TBlocoRelatorio>;
+    FMargeEsquerda: integer;
+    procedure ZerarConfiguracoes();
+    procedure SetBloco(bloco: TBlocoRelatorio);
   public
-    class function New(margeDireita, margeEsquerda, margeSuperior,
-      margeInferior, larguraPapel, alturaPapel: integer): iRelatorio;
-
-    constructor Create(margeDireita, margeEsquerda, margeSuperior,
-      margeInferior, larguraPapel, alturaPapel: integer);
+    constructor Create(margeEsquerda: integer);
     destructor Destroy; override;
 
-    property margeDireita: integer write setMargeDireita;
-    property margeEsquerda: integer write setMargeEsquerda;
-    property margeSuperior: integer write setMargeSuperior;
-    property margeInferior: integer write setMargeInferior;
-    property larguraPapel: integer write setLarguraPapel;
-    property alturaPapel: integer write setAlturaPapel;
+    property MargeEsquerda: integer read FMargeEsquerda write FMargeEsquerda;
 
     function addInformacaoImportante(informacaoImportante: IInformacaoImportante): iRelatorio;
     function addInformacaoSimples(informacaoSimples: IInformacaoSimples): iRelatorio;
-    function addInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;
+    function addInformacaoRodape(informacaoRodape: IInformacaoRodape):iRelatorio;
     function addInformacoesLista(informacaoLista: IInformacaoLista): iRelatorio;
-    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;const preview: boolean): iRelatorio;
-
+    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string): iRelatorio;
     function Ref: iRelatorio;
   end;
 
 implementation
 
 uses
-  Winapi.Windows,
-  RLTypes,
   JclSysInfo,
   System.SysUtils,
-  RLPrinters,
-  RLConsts,
-  System.UITypes,
-  Model.LibUtil,
   uRelatorio.Linhas;
 
 { TRelatorioTermica }
 
 function TRelatorioTermica.addInformacaoImportante(informacaoImportante
-  : IInformacaoImportante): iRelatorio;
+  : iInformacaoImportante): iRelatorio;
 var
-  band: TRLBand;
-  memoTitulo, memoInformacao: TRLMemo;
-  titulo, informacoes: TArray<string>;
-  tratamentoLinhas: ITratamentoLinhas;
+  blocoTitulo: TBlocoRelatorio;
+  blocoInformacoes: TBlocoRelatorio;
 begin
-  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
   if Assigned(informacaoImportante) then
   begin
-    if not(informacaoImportante.titulo.IsEmpty) or
-      (informacaoImportante.informacoes.Count > 0) then
+
+    if not(informacaoImportante.Titulo.IsEmpty) then
     begin
-      band := TRLBand.Create(fRelatorio);
-      band.Parent := fRelatorio;
-      band.Margins.BottomMargin := 1;
-      band.AutoSize := true;
-      band.BandType := btHeader;
+      blocoTitulo:= TBlocoRelatorio.Create;
 
-      if not(informacaoImportante.titulo.IsEmpty) then
-      begin
-        memoTitulo := TRLMemo.Create(band);
-        memoTitulo.Parent := band;
-        memoTitulo.Align := faTop;
-        memoTitulo.Alignment := taJustify;
-        memoTitulo.Behavior := [beSiteExpander];
-        memoTitulo.Font.Charset := DEFAULT_CHARSET;
-        memoTitulo.Font.Color := $000000;
-        memoTitulo.Font.Size := informacaoImportante.tamanhaoTitulo;
-        memoTitulo.Font.Name := 'Arial';
-        memoTitulo.Font.Style := [TFontStyle.fsBold];
-        memoTitulo.Layout := tlCenter;
+      blocoTitulo.NomeBloco:= 'blocoTitulo';
+      blocoTitulo.NomeFont:= 'Arial';
+      blocoTitulo.TamanhoFont:= informacaoImportante.TamanhaoTitulo;
+      blocoTitulo.StylesFont:= [TFontStyle.fsBold];
+      blocoTitulo.OrientacaoTexto:= atRigth;
+      blocoTitulo.QuantidadeCaracteres:= Trunc(informacaoImportante.QtdMaxCaracteres/2);
+      blocoTitulo.Linhas:= [informacaoImportante.Titulo];
+      FBlocosImpressao.Add(blocoTitulo);
+    end;
 
-        titulo:= tratamentoLinhas.TratarLinha(informacaoImportante.titulo, 30);
-        tratamentoLinhas.AddLinhas(titulo, memoTitulo.Lines);
-      end;
+    if Assigned(informacaoImportante.Informacoes) then
+    begin
+      blocoInformacoes:= TBlocoRelatorio.Create;
 
-      if (informacaoImportante.informacoes.Count > 0) then
-      begin
-        memoInformacao := TRLMemo.Create(band);
-        memoInformacao.Parent := band;
-        memoInformacao.Align := faTop;
-        memoInformacao.Alignment := taJustify;
-        memoInformacao.Behavior := [beSiteExpander];
-        memoInformacao.Font.Charset := DEFAULT_CHARSET;
-        memoInformacao.Font.Color := $000000;
-        memoInformacao.Font.Size := informacaoImportante.tamanhoInformacoes;
-        memoInformacao.Font.Name := 'Arial';
-        memoInformacao.Font.Style := [TFontStyle.fsBold];
-        memoInformacao.Layout := tlCenter;
+      blocoInformacoes.NomeBloco:= 'blocoInformacoes';
+      blocoInformacoes.NomeFont:= 'Arial';
+      blocoInformacoes.TamanhoFont:= informacaoImportante.TamanhoInformacoes;
+      blocoInformacoes.StylesFont:= [TFontStyle.fsBold];
+      blocoInformacoes.OrientacaoTexto:= atRigth;
+      blocoInformacoes.QuantidadeCaracteres:= informacaoImportante.QtdMaxCaracteres;
+      blocoInformacoes.Linhas:= informacaoImportante.Informacoes.ToArray;
 
-        informacoes:= tratamentoLinhas.TratarLinhas(informacaoImportante.Informacoes.ToArray, informacaoImportante.QtdMaxCaracteres);
-        tratamentoLinhas.AddLinhas(informacoes, memoInformacao.Lines);
-      end;
+      FBlocosImpressao.Add(blocoInformacoes);
     end;
   end;
 end;
 
 function TRelatorioTermica.addInformacaoRodape(informacaoRodape
-  : IInformacaoRodape): iRelatorio;
+  : iInformacaoRodape): iRelatorio;
 var
-  band: TRLBand;
-  pnlEspacoFinal: TRLPanel;
-  memo: TRLMemo;
-  linhas: TArray<string>;
-  tratamentoLinhas: ITratamentoLinhas;
+  blocoRodape: TBlocoRelatorio;
 begin
-  tratamentoLinhas:= TTratamentoLinhas.New();
-
   result := self;
   if Assigned(informacaoRodape) then
   begin
-    if informacaoRodape.linhas.Count > 0 then
+    blocoRodape:= TBlocoRelatorio.Create();
+    if informacaoRodape.Linhas.Count > 0 then
     begin
-      band := TRLBand.Create(fRelatorio);
-      band.Parent := fRelatorio;
-      band.AutoSize := true;
-      band.BandType := btFooter;
-      band.Margins.BottomMargin := 6;
-
-      pnlEspacoFinal := TRLPanel.Create(band);
-      pnlEspacoFinal.Parent := band;
-      pnlEspacoFinal.Align := faBottom;
-      pnlEspacoFinal.Color := $FFFFFF;
-      pnlEspacoFinal.ParentFont := False;
-      pnlEspacoFinal.Transparent := False;
-
-      memo := TRLMemo.Create(band);
-      memo.Parent := band;
-      memo.Align := faBottom;
-      memo.Alignment := taJustify;
-      memo.Behavior := [beSiteExpander];
-      memo.Font.Charset := DEFAULT_CHARSET;
-      memo.Font.Color := $000000;
-      memo.Font.Size := informacaoRodape.tamanho;
-      memo.Font.Name := 'Arial';
-      memo.ParentFont := False;
-
-      linhas:= tratamentoLinhas.TratarLinhas(informacaoRodape.Linhas.ToArray, informacaoRodape.QtdMaxCaracteres);
-      tratamentoLinhas.AddLinhas(linhas, memo.Lines);
+      blocoRodape.NomeBloco:= 'blocoRodape';
+      blocoRodape.NomeFont:= 'Arial';
+      blocoRodape.TamanhoFont:= informacaoRodape.Tamanho;
+      blocoRodape.StylesFont:= [];
+      blocoRodape.OrientacaoTexto:= atCenter;
+      blocoRodape.QuantidadeCaracteres:= informacaoRodape.QtdMaxCaracteres;
+      blocoRodape.Linhas:= informacaoRodape.Linhas.ToArray;
     end;
+    FBlocosImpressao.Add(blocoRodape);
   end;
 end;
 
 function TRelatorioTermica.addInformacaoSimples(informacaoSimples
-  : IInformacaoSimples): iRelatorio;
+  : IinformacaoSimples): iRelatorio;
 var
-  band: TRLBand;
-  memoInformacaoSimples: TRLMemo;
+  _linhas: TStringList;
+  titulo, informativo: TArray<string>;
   tratamentoLinhas: ITratamentoLinhas;
-  titulo, informacoes: TArray<string>;
+  blocoSimples: TBlocoRelatorio;
 begin
-  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
+  tratamentoLinhas:= TTratamentoLinhas.New();
   if Assigned(informacaoSimples) then
   begin
-    if not(informacaoSimples.titulo.IsEmpty) or
-      not(informacaoSimples.Informativo.IsEmpty) then
+    blocoSimples:= TBlocoRelatorio.Create();
+    if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
     begin
-      band := TRLBand.Create(fRelatorio);
-      band.Parent := fRelatorio;
-      band.AutoSize := true;
-      band.BandType := btHeader;
-      band.Margins.BottomMargin := 0;
-      band.Font.Charset := DEFAULT_CHARSET;
-      band.Font.Color := $000000;
-      band.Font.Size := informacaoSimples.tamanho;
-      band.Font.Name := 'Lucida Console';
-      band.Font.Style := [TFontStyle.fsBold];
-      band.ParentFont := False;
+      _linhas:= TStringList.Create();
+      try
+        titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, Trunc(informacaoSimples.QtdMaxCaracteres/2));
+        informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, Trunc(informacaoSimples.QtdMaxCaracteres/2));
+        blocoSimples.NomeBloco:= 'blocoSimples';
+        blocoSimples.NomeFont:= 'Lucida Console';
+        blocoSimples.TamanhoFont:= informacaoSimples.Tamanho;
+        blocoSimples.StylesFont:= [TFontStyle.fsBold];
+        blocoSimples.OrientacaoTexto:= atCenter;
+        blocoSimples.QuantidadeCaracteres:= informacaoSimples.QtdMaxCaracteres;
 
-      memoInformacaoSimples := TRLMemo.Create(band);
-      memoInformacaoSimples.Parent:= band;
-      memoInformacaoSimples.Align:= faTop;
-      memoInformacaoSimples.Alignment:= taJustify;
-      memoInformacaoSimples.Behavior:=[beSiteExpander];
-      memoInformacaoSimples.Layout:= tlCenter;
+        tratamentoLinhas.AddLinhasKeyValue(titulo, informativo,
+           informacaoSimples.QtdMaxCaracteres, _linhas);
 
-      if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
-      begin
-        memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
-
-        titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
-        informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
-        tratamentoLinhas.AddLinhasKeyValue(titulo, informacoes, informacaoSimples.QtdMaxCaracteres, memoInformacaoSimples.Lines);
+        blocoSimples.Linhas:= _linhas.ToStringArray;
+        FBlocosImpressao.Add(blocoSimples);
         Exit(self);
-      end;
-
-      if not(informacaoSimples.titulo.IsEmpty) then
-      begin
-        memoInformacaoSimples.Font.Style:= [TFontStyle.fsBold];
-
-        if not informacaoSimples.titulo.contains('-') then
-        begin
-          memoInformacaoSimples.AutoSize := False;
-          memoInformacaoSimples.Width := 150;
-        end;
-
-        titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, informacaoSimples.QtdMaxCaracteres);
-        tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
-      end;
-
-      if not(informacaoSimples.Informativo.IsEmpty) then
-      begin
-        if not informacaoSimples.titulo.contains('-') then
-        begin
-          memoInformacaoSimples.AutoSize := False;
-          memoInformacaoSimples.Width := 120;
-        end;
-
-        informacoes:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, informacaoSimples.QtdMaxCaracteres);
-        tratamentoLinhas.AddLinhas(titulo, memoInformacaoSimples.Lines);
+      finally
+        _linhas.Free;
       end;
     end;
-  end;
 
+    if not(informacaoSimples.Titulo.IsEmpty) then
+    begin
+      blocoSimples.NomeBloco:= 'blocoSimples';
+      blocoSimples.NomeFont:= 'Arial';
+      blocoSimples.TamanhoFont:= informacaoSimples.Tamanho;
+      blocoSimples.StylesFont:= [TFontStyle.fsBold];
+      blocoSimples.OrientacaoTexto:= atRigth;
+      blocoSimples.QuantidadeCaracteres:= informacaoSimples.QtdMaxCaracteres;
+      blocoSimples.Linhas:= [informacaoSimples.Titulo]
+    end;
+
+    if not(informacaoSimples.Informativo.IsEmpty) then
+    begin
+      blocoSimples.NomeBloco:= 'blocoSimples';
+      blocoSimples.NomeFont:= 'Arial';
+      blocoSimples.TamanhoFont:= informacaoSimples.Tamanho;
+      blocoSimples.StylesFont:= [];
+      blocoSimples.OrientacaoTexto:= atRigth;
+      blocoSimples.QuantidadeCaracteres:= informacaoSimples.QtdMaxCaracteres;
+      blocoSimples.Linhas:= [informacaoSimples.Informativo];
+    end;
+    FBlocosImpressao.Add(blocoSimples);
+  end;
 end;
 
 function TRelatorioTermica.addInformacoesLista(informacaoLista
-  : IInformacaoLista): iRelatorio;
+  : iInformacaoLista): iRelatorio;
 var
-  band: TRLBand;
-  memo: TRLMemo;
+  memo: TStringList;
+  blocoLista: TBlocoRelatorio;
   tratamentoLinhas: ITratamentoLinhas;
 begin
-  tratamentoLinhas:= TTratamentoLinhas.New();
   result := self;
-  if Assigned(informacaoLista) then
-  begin
-    if (informacaoLista.qtdMaxCaracteres.Count > 0) and
-      (informacaoLista.colunas.Count > 0) then
+  tratamentoLinhas:= TTratamentoLinhas.New();
+  memo:= TStringList.Create();
+  try
+    blocoLista:= TBlocoRelatorio.Create();
+    if Assigned(informacaoLista) then
     begin
-      band := TRLBand.Create(fRelatorio);
-      band.Parent := fRelatorio;
-      band.Margins.BottomMargin := 1;
-      band.AutoSize := true;
-      band.BandType := btHeader;
+      blocoLista.NomeBloco:= 'blocoLista';
+      blocoLista.NomeFont:= 'Lucida Console';
+      blocoLista.TamanhoFont:= 9;
+      blocoLista.StylesFont:= [TFontStyle.fsBold];
+      blocoLista.OrientacaoTexto:= atRigth;
+      blocoLista.QuantidadeCaracteres:= 42;
 
-      memo := TRLMemo.Create(band);
-      memo.Parent := band;
-      memo.Align := faTop;
-      memo.Alignment := taJustify;
-      memo.Behavior := [beSiteExpander];
-      memo.Font.Charset := DEFAULT_CHARSET;
-      memo.Font.Color := $000000;
-      memo.Font.Size := 9;
-      memo.Font.Name := 'Lucida Console';
-      memo.Font.Style := [TFontStyle.fsBold];
-      memo.ParentFont := False;
+      if (informacaoLista.Colunas.Count > 0) and (informacaoLista.QtdMaxCaracteres.Count > 0) then
+        tratamentoLinhas.AddLinhasColunadas(memo, informacaoLista.Colunas.ToArray,
+          informacaoLista.QtdMaxCaracteres.ToArray);
 
-      tratamentoLinhas.AddLinhasColunadas(
-      memo.Lines,
-      informacaoLista.Colunas.ToArray,
-      informacaoLista.QtdMaxCaracteres.ToArray);
+      blocoLista.Linhas:= memo.ToStringArray
     end;
+    FBlocosImpressao.Add(blocoLista);
+  finally
+    memo.Free;
   end;
 end;
 
-constructor TRelatorioTermica.Create(margeDireita, margeEsquerda, margeSuperior,
-  margeInferior, larguraPapel, alturaPapel: integer);
+
+constructor TRelatorioTermica.Create(margeEsquerda: integer);
 begin
-  inherited Create;
-
-  setAlturaPapel(alturaPapel);
-  setLarguraPapel(larguraPapel);
-  setMargeDireita(margeDireita);
-  setMargeEsquerda(margeEsquerda);
-  setMargeInferior(margeInferior);
-  setMargeSuperior(margeSuperior);
-
-  fRelatorio := TRLReport.Create(nil);
-  fRelatorio.AllowedBands := [btHeader, btDetail, btSummary, btFooter];
-
-  fRelatorio.Font.Charset := DEFAULT_CHARSET;
-  fRelatorio.Font.Color := $000000;
-  fRelatorio.Font.Size := 11;
-  fRelatorio.Font.Name := 'Arial';
-  fRelatorio.Font.Style := [];
-
-  fRelatorio.PageSetup.PaperSize := fpCustom;
-
-  fRelatorio.PrintDialog := False;
-  fRelatorio.PageBreaking := pbNone;
-  fRelatorio.ShowProgress := False;
-  fRelatorio.Visible := False;
-  fRelatorio.UnlimitedHeight := true;
-
-  fRelatorio.Margins.TopMargin := FmargeSuperior;
-  fRelatorio.Margins.BottomMargin := FmargeInferior;
-  fRelatorio.Margins.RightMargin := FmargeDireita;
-  fRelatorio.Margins.LeftMargin := FmargeEsquerda;
-
-  fRelatorio.PageSetup.PaperWidth := round(FlarguraPapel / MMAsPixels);
-  fRelatorio.PageSetup.PaperHeight := FalturaPapel;
+  FmargeEsquerda:= margeEsquerda;
+  FImpressora:= TPrinter.Create();
+  FBlocosImpressao:= TObjectList<TBlocoRelatorio>.Create();
 end;
 
 destructor TRelatorioTermica.Destroy;
 begin
+  FBlocosImpressao.Clear;
+  FBlocosImpressao.Free;
+  FImpressora.Free;
   inherited;
 end;
 
-function TRelatorioTermica.imprimir(nomeImpressao, nomeComputador,
-  nomeImpressora: string; const preview: boolean): iRelatorio;
+function TRelatorioTermica.imprimir(nomeImpressao, nomeComputador, nomeImpressora: string): iRelatorio;
 var
-  nomeComputadorLocal: string;
+  nomeComputadorLocal, ondeVaiImprimir: string;
+  indice: Integer;
+  it: TBlocoRelatorio;
 begin
   result := self;
-  fRelatorio.Title := UpperCase(nomeImpressao);
 
   nomeComputadorLocal := UpperCase(GetLocalComputerName);
+
   if (nomeComputador.IsEmpty) or (nomeImpressora.IsEmpty) then
-    raise Exception.Create('Nome do computador ou da impressora inv�lido');
+    raise Exception.Create('Nome do computador ou da impressora inválido');
 
   nomeComputador := UpperCase(nomeComputador);
   nomeImpressora := UpperCase(nomeImpressora);
 
   if nomeComputador = nomeComputadorLocal then
-    RLPrinter.PrinterName := nomeImpressora
+    ondeVaiImprimir := nomeImpressora
   else
-    RLPrinter.PrinterName := '\\' + nomeComputador + '\' + nomeImpressora;
+    ondeVaiImprimir := '\\' + nomeComputador + '\' + nomeImpressora;
 
-  if preview then
+  indice := FImpressora.Printers.IndexOf(ondeVaiImprimir);
+
+  if indice > -1 then
   begin
-    fRelatorio.preview();
+    FImpressora.PrinterIndex:= indice;
+    FImpressora.BeginDoc;
+    FImpressora.Title:= nomeImpressao;
+
+    for it in FBlocosImpressao do
+    begin
+      SetBloco(it);
+    end;
+
+    FImpressora.EndDoc;
   end
   else
-  begin
-    fRelatorio.Print;
-  end;
+    raise Exception.Create('Impressora não existe');
 
-
-  FreeAndNil(fRelatorio);
-
-end;
-
-class function TRelatorioTermica.New(margeDireita, margeEsquerda, margeSuperior,
-  margeInferior, larguraPapel, alturaPapel: integer): iRelatorio;
-begin
-  result := self.Create(
-    margeDireita,
-    margeEsquerda,
-    margeSuperior,
-    margeInferior,
-    larguraPapel,
-    alturaPapel);
 end;
 
 function TRelatorioTermica.Ref: iRelatorio;
@@ -380,35 +267,38 @@ begin
   result:= self;
 end;
 
-procedure TRelatorioTermica.setAlturaPapel(const Value: integer);
+
+procedure TRelatorioTermica.SetBloco(bloco: TBlocoRelatorio);
+var
+  it: string;
 begin
-  FalturaPapel := Value;
+  if Assigned(bloco) then
+  begin
+    try
+      FImpressora.Canvas.Font.Size:= bloco.TamanhoFont;
+      FImpressora.Canvas.Font.Name:= bloco.NomeFont;
+      FImpressora.Canvas.Font.Style:= bloco.StylesFont;
+
+      for it in bloco.Linhas do
+      begin
+        if not it.IsEmpty then
+        begin
+          FImpressora.Canvas.TextOut(MargeEsquerda,0, it);
+          FImpressora.NewPage;
+        end;
+      end;
+
+      ZerarConfiguracoes;
+    except
+    end;
+  end;
 end;
 
-procedure TRelatorioTermica.setLarguraPapel(const Value: integer);
+procedure TRelatorioTermica.ZerarConfiguracoes;
 begin
-  FlarguraPapel := Value;
-end;
-
-procedure TRelatorioTermica.setMargeDireita(const Value: integer);
-begin
-  FmargeDireita := Value;
-end;
-
-procedure TRelatorioTermica.setMargeEsquerda(const Value: integer);
-begin
-  FmargeEsquerda := Value;
-end;
-
-procedure TRelatorioTermica.setMargeInferior(const Value: integer);
-begin
-  FmargeInferior := Value;
-end;
-
-procedure TRelatorioTermica.setMargeSuperior(const Value: integer);
-begin
-  FmargeSuperior := Value;
+  FImpressora.Canvas.Font.Size:= 8;
+  FImpressora.Canvas.Font.Style:= [];
+  FImpressora.Canvas.Font.Name:= 'Arial';
 end;
 
 end.
-

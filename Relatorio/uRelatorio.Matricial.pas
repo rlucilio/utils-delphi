@@ -6,6 +6,23 @@ interface
 uses
   uRelatorio.Interfaces,
   System.Classes;
+
+const
+      DELAY                           = #27+'X';
+      AVANCAR_BOBINA                  = #13;
+      ESPACAMENTO                     = #27+'M';
+      CONDESADO_ATIVA                 = #15;
+      CONDESADO_DESATIVA              = #18;
+      EXPANDIR_ATIVA                  = #27+'W'+'1';
+      EXPANDIR_DESATIVA               = #27+'W'+'0';
+      SOBRESCRITO_ATIVA               = #27+'S0';
+      SUBESCRITO_ATIVA                = #27+'S1';
+      SOBRESCRITO_SUBESCRITO_DESATIVA = #27+'T';
+      SUBLINHADO_ATIVA                = #27+'-'+'1';
+      SUBLINHADO_DESATIVA             = #27+'-'+'0';
+      NEGRITO_ATIVA                   = #27+'E';
+      NEGRITO_DESATIVA                = #27+'F';
+
 type
   TRelatorioMatricial = class(TInterfacedObject, iRelatorio)
   private
@@ -20,7 +37,7 @@ type
     function addInformacaoSimples(informacaoSimples: IInformacaoSimples): iRelatorio;
     function addInformacaoRodape(informacaoRodape: IInformacaoRodape): iRelatorio;
     function addInformacoesLista(informacaoLista: IInformacaoLista): iRelatorio;
-    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string;const preview: boolean): iRelatorio;
+    function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string): iRelatorio;
 
     property ArquivoTxt: TStringList read FArquivoTxt;
   end;
@@ -117,7 +134,6 @@ begin
       tratamentoLinhas.AddLinhas(titulo, _arquivo);
     end;
   end;
-  Result:= self;
 end;
 
 function TRelatorioMatricial.addInformacoesLista(
@@ -151,8 +167,7 @@ begin
   inherited;
 end;
 
-function TRelatorioMatricial.imprimir(nomeImpressao, nomeComputador,
-  nomeImpressora: string; const preview: boolean): iRelatorio;
+function TRelatorioMatricial.imprimir(nomeImpressao, nomeComputador, nomeImpressora: string): iRelatorio;
 var
   print: TextFile;
   ondeVaiImprimir: string;
