@@ -168,16 +168,16 @@ begin
   values.AddRange(value);
   try
     if values.Count > keys.Count then
-      for I := Pred(keys.Count) to Pred(values.Count) do
+      for I := Pred(keys.Count) to Pred(values.Count)-1 do
         keys.Add('');
 
     if keys.Count > values.Count then
-      for I := Pred(values.Count) to Pred(keys.Count) do
+      for I := Pred(values.Count) to Pred(keys.Count)-1 do
         values.Add('');
 
     for I := 0 to Pred(keys.Count) do
     begin
-      AddLinhaKeyValue(key[I], value[I], quantidadeMaximaCaracteres, outLinhas, caracterEspecialAntes, caracterEspecialDepois);
+      AddLinhaKeyValue(keys[I], values[I], quantidadeMaximaCaracteres, outLinhas, caracterEspecialAntes, caracterEspecialDepois);
     end;
   finally
     keys.Free;

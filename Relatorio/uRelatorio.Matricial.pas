@@ -116,9 +116,9 @@ begin
   begin
     if not(informacaoSimples.Titulo.IsEmpty) and not(informacaoSimples.Informativo.IsEmpty)then
     begin
-      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 12);
-      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, 12);
-      tratamentoLinhas.AddLinhasKeyValue(titulo, informativo, 24, _arquivo, NEGRITO_ATIVA+EXPANDIR_ATIVA, NEGRITO_DESATIVA+EXPANDIR_DESATIVA);
+      titulo:= tratamentoLinhas.TratarLinha(informacaoSimples.Titulo, 24);
+      informativo:= tratamentoLinhas.TratarLinha(informacaoSimples.Informativo, 24);
+      tratamentoLinhas.AddLinhasKeyValue(titulo, informativo, 48, _arquivo, NEGRITO_ATIVA, NEGRITO_DESATIVA);
       Exit(self);
     end;
 
