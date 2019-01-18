@@ -22,7 +22,7 @@ type
     FBlocosImpressao: TObjectList<TBlocoRelatorio>;
     FMargeEsquerda: integer;
     procedure ZerarConfiguracoes();
-    procedure SetBloco(bloco: TBlocoRelatorio);
+    procedure SetBloco(bloco: TBlocoRelatorio;var linhas: integer);
   public
     constructor Create(margeEsquerda: integer);
     destructor Destroy; override;
@@ -226,9 +226,10 @@ var
   nomeComputadorLocal, ondeVaiImprimir: string;
   indice: Integer;
   it: TBlocoRelatorio;
+  linhas: Integer;
 begin
   result := self;
-
+  linhas:= 0;
   nomeComputadorLocal := UpperCase(GetLocalComputerName);
 
   if (nomeComputador.IsEmpty) or (nomeImpressora.IsEmpty) then
@@ -252,7 +253,7 @@ begin
 
     for it in FBlocosImpressao do
     begin
-      SetBloco(it);
+      SetBloco(it, linhas);
     end;
 
     FImpressora.EndDoc;
@@ -268,7 +269,7 @@ begin
 end;
 
 
-procedure TRelatorioTermica.SetBloco(bloco: TBlocoRelatorio);
+procedure TRelatorioTermica.SetBloco(bloco: TBlocoRelatorio;var linhas: integer);
 var
   it: string;
 begin
@@ -283,8 +284,8 @@ begin
       begin
         if not it.IsEmpty then
         begin
-          FImpressora.Canvas.TextOut(MargeEsquerda,0, it);
-          FImpressora.NewPage;
+          FImpressora.Canvas.TextOut(MargeEsquerda,linhas*35, it);
+          Inc(linhas);
         end;
       end;
 
