@@ -284,7 +284,11 @@ begin
       begin
         if not it.IsEmpty then
         begin
-          FImpressora.Canvas.TextOut(MargeEsquerda,linhas*35, it);
+          if linhas = 0 then
+            FImpressora.Canvas.TextOut(MargeEsquerda,linhas*50, it)
+          else
+            FImpressora.Canvas.TextOut(MargeEsquerda,linhas*35, it);
+
           Inc(linhas);
         end;
       end;

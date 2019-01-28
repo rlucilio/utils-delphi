@@ -1,4 +1,4 @@
-unit TratandoErro;
+﻿unit TratandoErro;
 
 interface
 
@@ -8,13 +8,20 @@ uses
 type
   TTratamentoErro = class
   private
+    FMostraMensagem: Boolean;
     function GetRTTILog(Sender: TObject): string;
   public
+    constructor Create();
+
     procedure TratamentoDeErro(Sender: TObject; E: Exception);
-    procedure DoAppExceptionEvent(Sender: TObject; E: Exception;
-      MostraMsg: Boolean = true);
+    procedure DoAppExceptionEvent(Sender: TObject; E: Exception);
     procedure ErroLog(texto: string);
+
+    property MostraMensagem: Boolean read FMostraMensagem write FMostraMensagem;
   end;
+
+var
+  Tratamento: TTratamentoErro;
 
 implementation
 
@@ -23,8 +30,12 @@ uses
 
 { TTratamentoErro }
 
-procedure TTratamentoErro.DoAppExceptionEvent(Sender: TObject; E: Exception;
-  MostraMsg: Boolean);
+constructor TTratamentoErro.Create;
+begin
+  FMostraMensagem:= True;
+end;
+
+procedure TTratamentoErro.DoAppExceptionEvent(Sender: TObject; E: Exception);
 var
   msgErro: TStringBuilder;
 begin
@@ -41,7 +52,7 @@ begin
 
       ErroLog(msgErro.ToString);
 
-      if MostraMsg then
+      if MostraMensagem then
       begin
         E.Message := msgErro.ToString;
         Application.ShowException(E);
@@ -106,7 +117,7 @@ begin
     tipo := contexto.GetType(Sender.ClassType);
 
     msgErro
-    .Append('===Informa��es Extra===').AppendLine()
+    .Append('===Informações Extra===').AppendLine()
     .Append('Data: ').Append(FormatDateTime('c', Now)).AppendLine()
     .Append('Programa: ').Append(ExtractFileName(ParamStr(0))).AppendLine()
     .Append('Nome Class: ').Append(Sender.ClassName).AppendLine()
@@ -131,9 +142,6 @@ procedure TTratamentoErro.TratamentoDeErro(Sender: TObject; E: Exception);
 begin
   DoAppExceptionEvent(Sender, E);
 end;
-
-var
-  Tratamento: TTratamentoErro;
 
 initialization
 
