@@ -16,13 +16,15 @@ uses
 
 type
 
+
+
   TRelatorioTermica = class(TInterfacedObject, iRelatorio)
   private
     FImpressora: TPrinter;
     FBlocosImpressao: TObjectList<TBlocoRelatorio>;
     FMargeEsquerda: integer;
     procedure ZerarConfiguracoes();
-    procedure SetBloco(bloco: TBlocoRelatorio;var linhas: integer);
+    procedure SetBloco(bloco: TBlocoRelatorio;var linhas: Integer; tamanhoDaPagina: integer);
   public
     constructor Create(margeEsquerda: integer);
     destructor Destroy; override;
@@ -36,6 +38,9 @@ type
     function imprimir(nomeImpressao, nomeComputador, nomeImpressora: string): iRelatorio;
     function Ref: iRelatorio;
   end;
+
+   const
+    ALTURA_LINHA = 35;
 
 implementation
 
@@ -253,7 +258,7 @@ begin
 
     for it in FBlocosImpressao do
     begin
-      SetBloco(it, linhas);
+      SetBloco(it, linhas, FImpressora.PageHeight);
     end;
 
     FImpressora.EndDoc;
@@ -269,7 +274,7 @@ begin
 end;
 
 
-procedure TRelatorioTermica.SetBloco(bloco: TBlocoRelatorio;var linhas: integer);
+procedure TRelatorioTermica.SetBloco(bloco: TBlocoRelatorio;var linhas: Integer; tamanhoDaPagina: integer);
 var
   it: string;
 begin
@@ -284,10 +289,13 @@ begin
       begin
         if not it.IsEmpty then
         begin
-          if linhas = 0 then
-            FImpressora.Canvas.TextOut(MargeEsquerda,linhas*50, it)
-          else
-            FImpressora.Canvas.TextOut(MargeEsquerda,linhas*35, it);
+          if ((ALTURA_LINHA * linhas) > tamanhoDaPagina) then
+          begin
+            FImpressora.NewPage;
+            linhas := 0;
+          end;
+
+          FImpressora.Canvas.TextOut(MargeEsquerda,linhas*ALTURA_LINHA, it);
 
           Inc(linhas);
         end;
