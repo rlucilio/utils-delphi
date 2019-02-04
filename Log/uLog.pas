@@ -8,15 +8,12 @@ uses
 type
   TLog = class
   private
-    FArquivoDeLog: string;
     FLog: string;
-    procedure ApagarArquivoAntigo();
     procedure gravaLinha(const linha: string);
     constructor Create;
   public
     destructor Destroy; override;
 
-    property ArquivoDeLog: string read FArquivoDeLog;
     property Log:          string read FLog;
 
     procedure DoObj(const obj: TObject;const msg: string);
@@ -35,32 +32,19 @@ uses
 
 { TLog }
 
-procedure TLog.ApagarArquivoAntigo;
-var
-  dataDoArquivo: TDateTime;
-begin
-  if FileExists(ArquivoDeLog) then
-  begin
-    fileage(ArquivoDeLog, dataDoArquivo);
-
-    if dayOf(dataDoArquivo) = DayOf(now) then
-      exit();
-
-    DeleteFile(ArquivoDeLog);
-  end;
-end;
-
 constructor TLog.Create;
 var
   nomeDoPrograma: string;
+  pastaLogs: string;
 begin
   inherited Create;
   nomeDoPrograma:= ChangeFileExt(ExtractFileName(ParamStr(0)), '');
+  pastaLogs     := Concat(TPath.GetDocumentsPath, '\SICLOP\', nomeDoPrograma, '\');
+  if not DirectoryExists(pastaLogs) then
+    ForceDirectories(pastaLogs);
 
-  FArquivoDeLog:= Concat(ExtractFilePath(ParamStr(0)), nomeDoPrograma, '.log');
-  FLog:= Concat(TPath.GetDocumentsPath,'\SICLOP\',nomeDoPrograma,'\',nomeDoPrograma,'.log');
+  FLog:= Concat(pastaLogs,nomeDoPrograma,'.log');
 
-  ApagarArquivoAntigo();
 end;
 
 destructor TLog.Destroy;
@@ -139,20 +123,6 @@ var
   linhaComDataHora: string;
 begin
   linhaComDataHora:= Concat(FormatDateTime('[dd/mm/yyyy hh:mm:ss.zzz]= ', Now), linha);
-
-  AssignFile(txtFile, ArquivoDeLog);
-  try  
-    {$I-}
-      Append(txtFile);
-    {$I+}       
-    if IOResult <> 0 then
-      Rewrite(txtFile);
-
-    Writeln(txtFile, linhaComDataHora);
-    
-  finally
-    CloseFile(txtFile);
-  end;
 
   AssignFile(txtFile, Log);
   try  

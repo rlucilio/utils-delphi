@@ -41,7 +41,7 @@ type
        opcoes: TRESTRequestParameterOptions = [];
        tipo: TRESTContentType = ctNone): IRestClient;
 
-    function GetResponse(const contentType: string = ''): string; overload;
+    function GetResponse(const contentType: string): string; overload;
     function GetResponse(): TJSONObject; overload;
     { TODO : Adicionar método async }
   end;
@@ -131,7 +131,9 @@ begin
 
   FRequest.Client  := FRest;
   FRequest.Method  := typeRequest;
-  FRequest.Resource:= URI;
+
+  if not(URI.IsEmpty) then
+    FRequest.Resource:= URI;
 
 end;
 
@@ -158,7 +160,8 @@ begin
     end;
 end;
 
-function TRestCliente.GetResponse(const contentType: string = ''): string;
+
+function TRestCliente.GetResponse(const contentType: string): string;
 begin
   try
     FRequest.Execute();
@@ -189,5 +192,7 @@ begin
   FURL := Value;
   FRest.BaseURL:= FURL;
 end;
+
+
 
 end.
