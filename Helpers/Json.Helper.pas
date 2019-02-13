@@ -1,11 +1,7 @@
-unit Json.Helper;
+﻿unit Json.Helper;
 
 interface
 
-{$I Delphi.inc }
-{$IFDEF UNICODE}
-{$DEFINE XE}
-{$ENDIF}
 
 uses System.Classes, System.Types, System.SysUtils, System.JSON,
   System.Generics.collections,

@@ -51,7 +51,6 @@ uses
   System.Zip, System.IOUtils, WinSock, Winapi.WinInet, System.StrUtils,
   Model.PowerCMD, System.Generics.Collections, System.Types;
 
-
 function RemoveAcento(aText : string) : string;
 const
   ComAcento = 'àâêôûãõáéíóúçüñýÀÂÊÔÛÃÕÁÉÍÓÚÇÜÑÝ';

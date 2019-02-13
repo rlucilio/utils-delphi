@@ -43,6 +43,8 @@ type
 
     function GetResponse(const contentType: string): string; overload;
     function GetResponse(): TJSONObject; overload;
+
+    function SetTypeRequest(typeRequest :TRESTRequestMethod): IRestClient;
     { TODO : Adicionar método async }
   end;
 
@@ -185,6 +187,13 @@ end;
 function TRestCliente.Ref: IRestClient;
 begin
   Result:= self;
+end;
+
+function TRestCliente.SetTypeRequest(
+  typeRequest: TRESTRequestMethod): IRestClient;
+begin
+  Result:= self;
+  FRequest.Method:= typeRequest;
 end;
 
 procedure TRestCliente.SetURL(const Value: string);

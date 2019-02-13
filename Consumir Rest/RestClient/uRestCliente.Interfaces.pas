@@ -23,6 +23,8 @@ type
 
     function GetResponse(const contentType: string): string; overload;
     function GetResponse(): TJSONObject; overload;
+
+    function SetTypeRequest(typeRequest :TRESTRequestMethod): IRestClient;
   end;
 
 implementation

@@ -3,21 +3,31 @@
 interface
 
 uses
-  System.SysUtils, FMX.Forms, System.IOUtils;
+  System.SysUtils,
+  {$IFDEF FMX}
+  FMX.Forms,
+  {$ELSE}
+  VCL.Forms,
+  {$ENDIF}
+  System.IOUtils,
+  TratandoErro.Email;
 
 type
   TTratamentoErro = class
   private
     FMostraMensagem: Boolean;
+    FEnviaErro: TEnviaErroEmail;
     function GetRTTILog(Sender: TObject): string;
   public
     constructor Create();
+    destructor Destroy; override;
 
     procedure TratamentoDeErro(Sender: TObject; E: Exception);
     procedure DoAppExceptionEvent(Sender: TObject; E: Exception);
     procedure ErroLog(texto: string);
 
     property MostraMensagem: Boolean read FMostraMensagem write FMostraMensagem;
+    property EnviaErro: TEnviaErroEmail read FEnviaErro;
   end;
 
 var
@@ -33,6 +43,13 @@ uses
 constructor TTratamentoErro.Create;
 begin
   FMostraMensagem:= True;
+  FEnviaErro:= TEnviaErroEmail.Create;
+end;
+
+destructor TTratamentoErro.Destroy;
+begin
+  FEnviaErro.Free;
+  inherited;
 end;
 
 procedure TTratamentoErro.DoAppExceptionEvent(Sender: TObject; E: Exception);
