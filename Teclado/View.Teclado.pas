@@ -4,351 +4,228 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  FMX.Layouts, FMX.Objects, FMX.Controls.Presentation, FMX.Edit,
-  FMX.Effects;
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Ani,
+  FMX.Objects, FMX.Layouts, FMX.Edit;
 
 type
-   Tdirecao = (dDireteira, dEsquerda);
+  TTipoTeclado = (alphaNumerico, Letra);
 
-  TViewTeclado = class(TForm)
-    ImgTeclado: TImage;
-    LayoutC: TLayout;
-    LayoutX: TLayout;
-    LayoutD: TLayout;
-    LayoutS: TLayout;
-    LayoutA: TLayout;
-    LayoutM: TLayout;
-    LayoutN: TLayout;
-    LayoutB: TLayout;
-    LayoutZ: TLayout;
-    LayoutF: TLayout;
-    LayoutV: TLayout;
-    LayoutH: TLayout;
-    LayoutG: TLayout;
-    LayoutJ: TLayout;
-    LayoutK: TLayout;
-    LayoutY: TLayout;
-    LayoutT: TLayout;
-    LayoutR: TLayout;
-    LayoutE: TLayout;
-    LayoutW: TLayout;
-    LayoutCC: TLayout;
-    LayoutL: TLayout;
-    LayoutEnter: TLayout;
-    LayoutBackSpace: TLayout;
-    LayoutP: TLayout;
-    LayoutO: TLayout;
-    LayoutI: TLayout;
-    LayoutU: TLayout;
-    LayoutQ: TLayout;
-    LayoutSpace: TLayout;
-    LayoutNext: TLayout;
-    LayoutBack: TLayout;
-    ShadowEffect1: TShadowEffect;
-    LayoutTeclado: TLayout;
-    procedure LayoutQMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutWMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutEMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutRMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutTMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutYMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutUMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutIMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutOMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutPMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutAMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutSMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutDMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutFMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutGMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutHMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutJMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutKMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutLMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutCCMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutZMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutXMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutCMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutVMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutBMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutNMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutMMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutSpaceMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutNextMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure LayoutBackClick(Sender: TObject);
-    procedure LayoutBackSpaceMouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+  TfrmTecladoAlphaNumeric = class(TForm)
+    lTeclado: TLayout;
+    btn1: TRectangle;
+    Text1: TText;
+    btn2: TRectangle;
+    Text2: TText;
+    btn4: TRectangle;
+    Text4: TText;
+    btn3: TRectangle;
+    Text3: TText;
+    btn8: TRectangle;
+    Text5: TText;
+    btn7: TRectangle;
+    Text6: TText;
+    btn6: TRectangle;
+    Text7: TText;
+    btn5: TRectangle;
+    Text8: TText;
+    btn0: TRectangle;
+    Text9: TText;
+    btn9: TRectangle;
+    Text10: TText;
+    btnP: TRectangle;
+    Text11: TText;
+    btnO: TRectangle;
+    Text12: TText;
+    btnI: TRectangle;
+    Text13: TText;
+    btnU: TRectangle;
+    Text14: TText;
+    btnY: TRectangle;
+    Text15: TText;
+    btnT: TRectangle;
+    Text16: TText;
+    btnR: TRectangle;
+    Text17: TText;
+    btnE: TRectangle;
+    Text18: TText;
+    btnW: TRectangle;
+    Text19: TText;
+    btnQ: TRectangle;
+    Text20: TText;
+    btnM: TRectangle;
+    Text33: TText;
+    btnN: TRectangle;
+    Text34: TText;
+    btnB: TRectangle;
+    Text35: TText;
+    btnV: TRectangle;
+    Text36: TText;
+    btnC: TRectangle;
+    Text37: TText;
+    btnX: TRectangle;
+    Text38: TText;
+    btnZ: TRectangle;
+    Text39: TText;
+    btnEspaco: TRectangle;
+    Text31: TText;
+    btnApagar: TRectangle;
+    Text40: TText;
+    btnCCedilha: TRectangle;
+    Text21: TText;
+    btnL: TRectangle;
+    Text22: TText;
+    btnK: TRectangle;
+    Text23: TText;
+    btnJ: TRectangle;
+    Text24: TText;
+    btnH: TRectangle;
+    Text25: TText;
+    btnG: TRectangle;
+    Text26: TText;
+    btnF: TRectangle;
+    Text27: TText;
+    btnD: TRectangle;
+    Text28: TText;
+    btnS: TRectangle;
+    Text29: TText;
+    btnA: TRectangle;
+    Text30: TText;
+    btnEnter: TRectangle;
+    Text41: TText;
+    Rectangle1: TRectangle;
+    RectAnimation1: TRectAnimation;
+    procedure btnEnterClick(Sender: TObject);
+    procedure btnApagarClick(Sender: TObject);
   private
-   FEdit: TEdit;
-    procedure letraPrescionada(sender: TObject;letra: char);
-    procedure mudaPosicao(sender: TObject;direcao: Tdirecao);
-    procedure apagaTexto(sender: TObject);
+    FCorLetra:      TAlphaColor;
+    FCorFundo:      TAlphaColor;
+    FCorFundoLetra: TAlphaColor;
+    FTipoTeclado:   TTipoTeclado;
+    FEdit: TEdit;
     { Private declarations }
+    procedure btnClick(Sender: TObject);
+
+    procedure DefinirTipoTeclado(btnTecla: TRectangle);
+    procedure SetTeclasCores();
+
+    procedure ApagarTexto();
+    procedure Teclar(btn: TRectangle);
   public
-    constructor Create(owner: TComponent; sender: TObject);reintroduce;
+    property CorLetra:      TAlphaColor  read FCorLetra      ;
+    property CorFundo:      TAlphaColor  read FCorFundo      ;
+    property CorFundoLetra: TAlphaColor  read FCorFundoLetra ;
+    property TipoTeclado:   TTipoTeclado read FTipoTeclado   ;
+    property Edit:          TEdit        read FEdit          write FEdit;
+
+    constructor Create(aEdit: TEdit ;aTipoTeclado: TTipoTeclado;
+      aCorFundo, aCorLetra, aCorFundoLetra: TAlphaColor); reintroduce;
+
 
     { Public declarations }
   end;
+
 
 
 implementation
 
 {$R *.fmx}
 
-procedure TViewTeclado.apagaTexto(sender: TObject);
+{ TfrmTecladoAlphaNumeric }
+
+procedure TfrmTecladoAlphaNumeric.ApagarTexto;
 var
    texto: string;
 begin
-   texto:= TEdit(sender).Text;
-   delete(texto, TEdit(sender).SelStart, 1);
-   TEdit(sender).Text:= texto;
+   texto:= Edit.Text;
+   delete(texto, Edit.SelStart, 1);
+   Edit.Text:= texto;
 end;
 
-
-constructor TViewTeclado.Create(owner: TComponent; sender: TObject);
+procedure TfrmTecladoAlphaNumeric.btnApagarClick(Sender: TObject);
 begin
-   inherited Create(owner);
-   FEdit:= TEdit(sender);
+  ApagarTexto;
 end;
 
-procedure TViewTeclado.LayoutAMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
+procedure TfrmTecladoAlphaNumeric.btnClick(Sender: TObject);
 begin
-   letraPrescionada(FEdit,'A');
+  Teclar(TRectangle(sender));
 end;
 
-procedure TViewTeclado.LayoutBackClick(Sender: TObject);
+procedure TfrmTecladoAlphaNumeric.btnEnterClick(Sender: TObject);
 begin
-    mudaPosicao(FEdit, dEsquerda);
+  Edit.OnExit(Application);
 end;
 
-procedure TViewTeclado.LayoutBackSpaceMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+constructor TfrmTecladoAlphaNumeric.Create(aEdit: TEdit ;aTipoTeclado: TTipoTeclado;
+      aCorFundo, aCorLetra, aCorFundoLetra: TAlphaColor);
 begin
-   apagaTexto(FEdit);
+  inherited Create(nil);
+  FEdit:= aEdit;
+  FCorLetra:= aCorLetra;
+  FCorFundo:= aCorFundo;
+  FCorFundoLetra:= aCorFundoLetra;
+  FTipoTeclado:= aTipoTeclado;
+  SetTeclasCores();
+  Edit.SelStart:= Edit.Text.Length;
+
 end;
 
-procedure TViewTeclado.LayoutBMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
+procedure TfrmTecladoAlphaNumeric.DefinirTipoTeclado(btnTecla: TRectangle);
 begin
-   letraPrescionada(FEdit,'B');
+  if TipoTeclado = Letra then
+  begin
+    if btnTecla.Tag in [48..57] then
+    begin
+      btnTecla.Visible:= false;
+      btnEnter.Position.Y:= 119;
+      btnApagar.Position.Y:= 64;
+    end;
+  end;
 end;
 
-procedure TViewTeclado.LayoutCCMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
+procedure TfrmTecladoAlphaNumeric.SetTeclasCores;
+var
+  I: Integer;
 begin
-   letraPrescionada(FEdit,'Ç');
-end;
-
-procedure TViewTeclado.LayoutCMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'C');
-end;
-
-procedure TViewTeclado.LayoutDMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'D');
-end;
-
-procedure TViewTeclado.LayoutEMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'E');
-end;
-
-procedure TViewTeclado.LayoutFMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'F');
-end;
-
-procedure TViewTeclado.LayoutGMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'G');
-end;
-
-procedure TViewTeclado.LayoutHMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'H');
-end;
-
-procedure TViewTeclado.LayoutIMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'I');
-end;
-
-procedure TViewTeclado.LayoutJMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'J');
-end;
-
-procedure TViewTeclado.LayoutKMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'K');
-end;
-
-procedure TViewTeclado.LayoutLMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'L');
-end;
-
-procedure TViewTeclado.LayoutMMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'M');
-end;
-
-procedure TViewTeclado.LayoutNextMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-    mudaPosicao(FEdit, dDireteira);
-end;
-
-procedure TViewTeclado.LayoutNMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'N');
-end;
-
-procedure TViewTeclado.LayoutOMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'O');
-end;
-
-procedure TViewTeclado.LayoutPMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'P');
-end;
-
-procedure TViewTeclado.LayoutQMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'Q');
-end;
-
-procedure TViewTeclado.LayoutRMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'R');
-end;
-
-procedure TViewTeclado.LayoutSMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'S');
-end;
-
-procedure TViewTeclado.LayoutSpaceMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,' ');
-end;
-
-procedure TViewTeclado.LayoutTMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'T');
-end;
-
-procedure TViewTeclado.LayoutUMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'U');
-end;
-
-procedure TViewTeclado.LayoutVMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'V');
-end;
-
-procedure TViewTeclado.LayoutWMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'W');
-end;
-
-procedure TViewTeclado.LayoutXMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'X');
-end;
-
-procedure TViewTeclado.LayoutYMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'Y');
-end;
-
-procedure TViewTeclado.LayoutZMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-   letraPrescionada(FEdit,'Z');
-end;
-
-procedure TViewTeclado.mudaPosicao(sender: TObject; direcao: Tdirecao);
-begin
-   if direcao = dDireteira then
-   begin
-      if FEdit.SelLength < FEdit.SelStart+1 then
+  for I := 0 to (Self.ComponentCount) -1 do
+  begin
+    if Components[I] is TRectangle then
+    begin
+      if (Components[I] as TRectangle).Tag > 0 then
       begin
-         FEdit.SelStart:= FEdit.SelStart+1;
-      end;
-   end
-   else
-   begin
-      if FEdit.SelStart-1 > -1 then
-      begin
-         FEdit.SelStart:= FEdit.SelStart-1;
-      end;
-   end;
+        if (Components[I] as TRectangle).Tag = 99 then
+          (Components[I] as TRectangle).TagString:= 'Ç'
+        else
+          (Components[I] as TRectangle).TagString:= char((Components[I] as TRectangle).Tag);
 
+        (Components[I] as TRectangle).Stroke.Kind := TBrushKind.None;
+
+        (Components[I] as TRectangle).Fill.Color := CorFundoLetra;
+
+        if not ((Components[I] as TRectangle).Tag in [8, 27]) then
+          (Components[I] as TRectangle).OnClick:= btnClick;
+
+
+        DefinirTipoTeclado((Components[I] as TRectangle));
+
+      end
+      else
+        (Components[I] as TRectangle).Fill.Color := CorFundo;
+    end
+    else if Components[I] is TText then
+    begin
+      (Components[I] as TText).Color:= CorLetra;
+    end;
+  end;
 end;
 
-procedure TViewTeclado.letraPrescionada(sender: TObject;letra: char);
+procedure TfrmTecladoAlphaNumeric.Teclar(btn: TRectangle);
+var
+  caractere: string;
 begin
-   FEdit.Text:= FEdit.Text+letra;
-   FEdit.SelStart:= Length(FEdit.Text);
+   caractere:= btn.TagString;
+   Edit.Text:= Edit.Text+caractere;
+   Edit.SelStart:= Length(Edit.Text);
 end;
 
 end.

@@ -77,7 +77,7 @@ var
   resultado: TStringList;
   linhasAjustadas: TList<string>;
   _texto: string;
-  colunaAtual, I, indice: Integer;
+  colunaAtual, I: Integer;
 begin
   resultado:= TStringList.Create;
   linhasAjustadas:= TList<string>.Create;

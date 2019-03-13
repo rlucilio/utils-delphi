@@ -69,7 +69,7 @@ begin
 
       ErroLog(msgErro.ToString);
 
-      if MostraMensagem then
+      if (MostraMensagem)then
       begin
         E.Message := msgErro.ToString;
         Application.ShowException(E);
@@ -157,7 +157,8 @@ end;
 
 procedure TTratamentoErro.TratamentoDeErro(Sender: TObject; E: Exception);
 begin
-  DoAppExceptionEvent(Sender, E);
+  if not(E is EArgumentOutOfRangeException) and not(Application.Title = 'Totem SICLOP') then
+    DoAppExceptionEvent(Sender, E);
 end;
 
 initialization

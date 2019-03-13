@@ -12,7 +12,6 @@ type
   private
     FArquivoZip: string;
     FPastaLogs: string;
-    procedure compactarPastaLogs;
     function PodeEnviar: Boolean;
     procedure enviarEmail(arquivoZip: string);
   public
@@ -36,11 +35,6 @@ uses
     Model.Email;
 
 { TEnviaErroEmail }
-
-procedure TEnviaErroEmail.compactarPastaLogs;
-begin
-
-end;
 
 constructor TEnviaErroEmail.Create;
 begin
@@ -67,7 +61,6 @@ var
 begin
   emailTemp:= TModelEmail.Create(EMAILREMETENTE, 'SICLOP SAT');
 
-  try
     emailTemp
       .setServer(SERV, SENHA)
       .setEnvio(['siclopsat@gmail.com'], FormatDateTime('dd.mm.yyy ', now)+ 'Log')
@@ -75,10 +68,8 @@ begin
       .setAnexos([arquivoZip])
       .enviar;
 
-    TDirectory.Delete(PastaLogs);
-  finally
-    emailTemp.Free;
-  end;
+    if DirectoryExists(PastaLogs) then
+      RemoveDir(PastaLogs);
 
 
 end;
