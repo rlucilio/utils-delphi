@@ -11,7 +11,7 @@ object frmTecladoNumerico: TfrmTecladoNumerico
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
   object lTeclado: TLayout
-    Align = Client
+    Align = Center
     Size.Width = 195.000000000000000000
     Size.Height = 280.000000000000000000
     Size.PlatformDefault = False

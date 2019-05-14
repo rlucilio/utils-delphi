@@ -334,11 +334,16 @@ begin
   try
     Result := ExtractFilePath(ParamStr(0)) + nomeArquivoZip + '.zip';
       Zip.open(Result, zmWrite);
-      for item in arquivos do
+      if Length(arquivos) > 0 then
       begin
-        if FileExists(item) then
-          Zip.Add(item);
-      end;
+        for item in arquivos do
+        begin
+          if FileExists(item) then
+            Zip.Add(item);
+        end;
+      end
+      else
+        Result:='';
   finally
     FreeAndNil(Zip);
   end;

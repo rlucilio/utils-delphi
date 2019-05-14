@@ -41,7 +41,7 @@ begin
   stringBuilter:= TStringBuilder.Create();
   stringWriter:= TStringWriter.Create(stringBuilter);
   writer:= TJsonTextWriter.Create(stringWriter);
-  writer.Formatting:= TJsonFormatting.Indented;
+  writer.Formatting:= TJsonFormatting.None;
   builder:= TJSONObjectBuilder.Create(writer);
   try
     Self.First;
@@ -68,6 +68,8 @@ begin
       .EndArray
         .EndObject;
 
+    stringBuilter.Remove(0,1);
+    stringBuilter.Remove(stringBuilter.Length-1, 1);
     Result := stringBuilter.ToString;
 
     if alias.IsEmpty then

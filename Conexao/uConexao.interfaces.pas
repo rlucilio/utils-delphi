@@ -37,6 +37,7 @@ type
       function ToJson(alias: string = ''): string;
       function Exec(): IQuery;
       function Open(): IQuery;
+      function Clear(): IQuery;
       function Ref: iQuery;
    end;
 

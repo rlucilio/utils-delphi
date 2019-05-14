@@ -34,6 +34,7 @@ type
 
     function Exec(): IQuery;
     function Open(): IQuery;
+    function Clear(): IQuery;
 
     function ToJson(alias: string = ''): string;
   end;
@@ -46,6 +47,13 @@ uses
 
 
 { TQuery }
+
+function TQuery.Clear: IQuery;
+begin
+  result := self;
+
+  sql.Clear();
+end;
 
 constructor TQuery.Create(conexao: TFDConnection);
 begin

@@ -11,7 +11,7 @@ object frmTecladoAlphaNumeric: TfrmTecladoAlphaNumeric
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
   object lTeclado: TLayout
-    Align = Bottom
+    Align = Center
     Size.Width = 700.000000000000000000
     Size.Height = 290.000000000000000000
     Size.PlatformDefault = False
