@@ -3,9 +3,13 @@ unit TratandoErro.Email;
 interface
 
 CONST
-  EMAILREMETENTE = 'desenvolvimento@centralsiclop.com.br';
-  SERV = 'mail.centralsiclop.com.br';
-  SENHA = 'php787878';
+//  EMAILREMETENTE = 'desenvolvimento@centralsiclop.com.br';
+//  SERV = 'mail.centralsiclop.com.br';
+//  SENHA = 'php787878';
+
+  EMAILREMETENTE = 'siclopsat@gmail.com';
+  SERV = 'smtp.gmail.com';
+  SENHA = 'sat787878';
 
 type
   TEnviaErroEmail = class

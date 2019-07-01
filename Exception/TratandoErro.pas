@@ -43,12 +43,12 @@ uses
 constructor TTratamentoErro.Create;
 begin
   FMostraMensagem:= True;
-  FEnviaErro:= TEnviaErroEmail.Create;
+//  FEnviaErro:= TEnviaErroEmail.Create;
 end;
 
 destructor TTratamentoErro.Destroy;
 begin
-  FEnviaErro.Free;
+//  FEnviaErro.Free;
   inherited;
 end;
 
