@@ -9,7 +9,7 @@
 	<img  src="https://img.shields.io/github/languages/count/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
 	<img  src="https://img.shields.io/github/languages/top/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
 	<img  src="https://img.shields.io/github/languages/code-size/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
-	<img  src="https://img.shields.io/github/commit-activity/w/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
+	<img  src="https://img.shields.io/github/commit-activity/y/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
 </p>
 
 <p  align="center"> 
