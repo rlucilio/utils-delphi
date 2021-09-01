@@ -6,10 +6,10 @@
 <p  align="center">Projeto criado para fornecer alguns tipos de libs utilitárias para o desenvolvimento com delphi</p>
 
 <p  align="center">
-	<img  src="https://img.shields.io/github/languages/count/rlucilio/readme-markdown?style=for-the-badge&logo=ghost&color=7ED957"/>
-	<img  src="https://img.shields.io/github/languages/top/rlucilio/readme-markdown?style=for-the-badge&logo=ghost&color=7ED957"/>
-	<img  src="https://img.shields.io/github/languages/code-size/rlucilio/readme-markdown?style=for-the-badge&logo=ghost&color=7ED957"/>
-	<img  src="https://img.shields.io/github/commit-activity/w/rlucilio/readme-markdown?style=for-the-badge&logo=ghost&color=7ED957"/>
+	<img  src="https://img.shields.io/github/languages/count/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
+	<img  src="https://img.shields.io/github/languages/top/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
+	<img  src="https://img.shields.io/github/languages/code-size/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
+	<img  src="https://img.shields.io/github/commit-activity/w/rlucilio/Delphi_Uteis?style=for-the-badge&logo=ghost&color=7ED957"/>
 </p>
 
 <p  align="center"> 
