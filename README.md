@@ -33,10 +33,10 @@ Antes de começar é necessário ter o [Delphi](https://www.embarcadero.com/br/p
 ### 🎲 Rodando
 ```bash
 # Clone este repositório
-$ git clone https://github.com/rlucilio/Delphi_Uteis.git
+$ git clone https://github.com/rlucilio/utils-delphi.git
 
 # Acesse a pasta do projeto no terminal/cmd
-$ cd Delphi_Uteis
+$ cd utils-delphi
 
 # Instale as dependências
 # Abra o projeto com o Delphi
